@@ -3,7 +3,7 @@ output: html_document
 editor_options: 
   chunk_output_type: console
 ---
-# Data sources 
+# Data sources
 
 * Two Covid-19 datasets in csv format are collected from [healthdata.gov](https://healthdata.gov/). They are [COVID-19 cases and deaths by States over time (Cases_and_Deaths)](https://healthdata.gov/dataset/united-states-covid-19-cases-and-deaths-state-over-time) and [COVID-19 patient impact and hospital capacity by State over time (Hospital_Utilization)](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-state-timeseries). We would combine two datasets for our use.
 ```{r}
