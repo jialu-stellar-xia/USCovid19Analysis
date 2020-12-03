@@ -1,2 +1,116 @@
-# Data sources
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Data sources and description
 
+* Two Covid-19 datasets in csv format are collected from [healthdata.gov](https://healthdata.gov/). They are [COVID-19 cases and deaths by States over time (Cases_and_Deaths)](https://healthdata.gov/dataset/united-states-covid-19-cases-and-deaths-state-over-time) and [COVID-19 patient impact and hospital capacity by State over time (Hospital_Utilization)](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-state-timeseries). We would combine two datasets for our use.
+```{r}
+Cases_and_Deaths<-read.csv("data/United_States_COVID-19_Cases_and_Deaths_by_State_over_Time.csv")
+Hospital_Utilization<-read.csv("data/reported_hospital_utilization_timeseries_20201115_2134.csv")
+```
+* Cases_and_Deaths has 18000 observations by 60 States from 2020-01-22 to 2020-11-16. Hospital_Utilization has 14003 observations by 53 States from 2020-01-01 to 2020-11-15.
+```{r}
+library(tidyverse)
+Cases_and_Deaths$submission_date<-parse_date(Cases_and_Deaths$submission_date,format = "%m/%d/%Y")
+
+print(paste0("Number of States in Cases_and_Deaths is ",length(unique(Cases_and_Deaths$state)),"."))
+print(paste0("Cases_and_Deaths records data from ",unique(Cases_and_Deaths$submission_date)[1], " to ", unique(Cases_and_Deaths$submission_date)[length(unique(Cases_and_Deaths$submission_date))], "."))
+
+
+print(paste0("Number of States in Hospital_Utilization is ",length(unique(Hospital_Utilization$state)),"."))
+print(paste0("Hospital_Utilization records data from ",unique(Hospital_Utilization$date)[length(unique(Hospital_Utilization$date))], " to ",unique(Hospital_Utilization$date)[1] , "."))
+```
+
+* Two datasets are inconsistent in Date and States. To join them together, We chose the starting date at when the pandemic broke out (when total cases in US exceeded 100). And only focused on 50 States in "state" package. Covid19_df is the merged dataframe.
+```{r}
+US_cases<-Cases_and_Deaths %>% 
+  group_by(submission_date) %>% 
+  summarise(us_cases=sum(tot_cases)) %>% 
+  ungroup() %>% 
+  filter(us_cases>=100)
+start_date=unique(US_cases$submission_date)[1]
+print(paste0("Covid-19 broke out among US at ", start_date, "."))
+```
+```{r}
+#select data with date later than 2020-03-05 and state in state.abb
+Cases_and_Deaths_filtered<-Cases_and_Deaths %>% 
+  rename(date=submission_date) %>% 
+  filter(date >= "2020-03-05") %>% 
+  filter(date <= "2020-11-15") %>% 
+  filter(state %in% state.abb)
+
+Hospital_Utilization_filtered<-Hospital_Utilization %>% 
+  filter(date>="2020-03-05") %>% 
+  filter(state %in% state.abb)
+
+#merge two dataframes by date and state
+
+Covid19_df<-merge(x=Cases_and_Deaths_filtered, y=Hospital_Utilization_filtered, by=c("date", "state"),
+                  all=TRUE)
+```
+
+* There are many useless variables for our analysis. We would drop all redundant variables. Covid19_selected_df is the dateframe we would use in analysis.
+```{r}
+Covid19_selected_df<-Covid19_df %>% 
+  select(date,state,tot_cases,
+         new_case,tot_death,new_death,
+         hospital_onset_covid,
+         inpatient_beds,
+         inpatient_beds_used,
+         inpatient_beds_used_covid,
+         previous_day_admission_adult_covid_confirmed, 
+         previous_day_admission_adult_covid_suspected, 
+         previous_day_admission_pediatric_covid_confirmed,
+         previous_day_admission_pediatric_covid_suspected,
+         staffed_adult_icu_bed_occupancy,
+         staffed_icu_adult_patients_confirmed_and_suspected_covid,
+         staffed_icu_adult_patients_confirmed_covid,
+         total_adult_patients_hospitalized_confirmed_and_suspected_covid, 
+         total_adult_patients_hospitalized_confirmed_covid,
+         total_pediatric_patients_hospitalized_confirmed_and_suspected_covid,
+         total_pediatric_patients_hospitalized_confirmed_covid,
+         total_staffed_adult_icu_beds,
+         inpatient_beds_utilization,
+         percent_of_inpatients_with_covid,
+         inpatient_bed_covid_utilization,
+         adult_icu_bed_covid_utilization,
+         adult_icu_bed_utilization 
+         )
+```
+
+* Data Dictionary
+    1) date: [chr] report date.
+    2) state: [chr] The two digit state code.
+    3) tot_cases: [int] total cases in this state until the previous day.
+    4) new_case: [int] new cases in this state on the previous day.
+    5) tot_death: [int] total deaths in this state until the previous day.
+    6) new_death: [int] new death in this state on the previous day.
+    7) hospital_onset_covid: [int] Total current inpatients with onset of suspected or laboratory-confirmed COVID-19 fourteen or more days after admission for a condition other than COVID-19 in this state.
+    8) inpatient_beds: [int] Reported total number of staffed inpatient beds including all overflow and surge/expansion beds used for inpatients (includes all ICU beds) in this state.
+    9) inpatient_beds_used: [int] Reported total number of staffed inpatient beds that are occupied in this state.
+    10) inpatient_beds_used_covid: [int] Reported patients currently hospitalized in an inpatient bed who have suspected or confirmed COVID-19 in this state.
+    11) previous_day_admission_adult_covid_confirmed: [int] Number of patients who were admitted to an adult inpatient bed on the previous calendar day who had confirmed COVID-19 at the time of admission in this state.
+    12) previous_day_admission_adult_covid_suspected: [int] Number of patients who were admitted to an adult inpatient bed on the previous calendar day who had suspected COVID-19 at the time of admission in this state.
+    13) previous_day_admission_pediatric_covid_confirmed: [int] Number of pediatric patients who were admitted to an inpatient bed, including NICU, PICU, newborn, and nursery, on the previous calendar day who had confirmed COVID-19 at the time of admission in this state.
+    14) previous_day_admission_pediatric_covid_suspected: [int] Number of pediatric patients who were admitted to an inpatient bed, including NICU, PICU, newborn, and nursery, on the previous calendar day who had suspected COVID-19 at the time of admission in this state.
+    15) staffed_adult_icu_bed_occupancy: [int] Reported total number of staffed inpatient adult ICU beds that are occupied in this state.
+    16) staffed_icu_adult_patients_confirmed_and_suspected_covid: [int] Reported patients currently hospitalized in an adult ICU bed who have suspected or confirmed COVID-19 in this state.
+    17) staffed_icu_adult_patients_confirmed_covid: [int] Reported patients currently hospitalized in an adult ICU bed who have confirmed COVID-19 in this state.
+    18) total_adult_patients_hospitalized_confirmed_and_suspected_covid: [int] Reported patients currently hospitalized in an adult inpatient
+bed who have laboratory-confirmed or suspected COVID-19. This include those in observation beds.
+    19) total_adult_patients_hospitalized_confirmed_covid: [int] Reported patients currently hospitalized in an adult inpatient
+bed who have laboratory-confirmed COVID-19. This include those in observation beds.
+    20) total_pediatric_patients_hospitalized_confirmed_and_suspected_covid: [int] Reported patients currently hospitalized in a pediatric inpatient bed, including NICU, newborn, and nursery, who are suspected or laboratory-confirmed-positive for COVID-19. This include those in observation beds.
+    21) total_pediatric_patients_hospitalized_confirmed_covid: [int] Reported patients currently hospitalized in a pediatric inpatient
+bed, including NICU, newborn, and nursery, who are laboratory-confirmed-positive for COVID-19. This include those in observation beds.
+    22) total_staffed_adult_icu_beds: [int] Reported total number of staffed inpatient adult ICU beds in this state.
+    23) inpatient_beds_utilization: [num] Percentage of inpatient beds that are being utilized in this state. This number only accounts for hospitals in the state that report both "inpatient_beds_used" and "inpatient_beds" fields.
+    24) percent_of_inpatients_with_covid: [num] Percentage of inpatient population who have suspected or confirmed COVID-19 in this state. This number only accounts for hospitals in the state that report both "inpatient_beds_used_covid" and "inpatient_beds_used" fields.
+    25) inpatient_bed_covid_utilization: [num] Percentage of total (used/available) inpatient beds currently utilized by patients who have suspected or confirmed COVID-19 in this state. This number only accounts for hospitals in the state that report both "inpatient_beds_used_covid" and "inpatient_beds" fields.
+    26) adult_icu_bed_covid_utilization: [num] Percentage of total staffed adult ICU beds currently utilized by patients who have suspected or confirmed COVID-19 in this state. This number only accounts for hospitals in the state that report both "staffed_icu_adult_patients_confirmed_and_suspected_covid" and "total_staffed_adult_icu_beds" fields.
+    27) adult_icu_bed_utilization: [num] Percentage of staffed adult ICU beds that are being utilized in this state. This number only accounts for hospitals in the state that report both "staffed_adult_icu_bed_occupancy" and "total_staffed_adult_icu_beds" fields.
+
+* The data is not 100% accurate. Since COVID-19 can cause mild illness, symptoms might not appear immediately, there are delays in reporting and testing, not everyone who is infected gets tested or seeks medical care, and there are differences in how completely states and territories report their cases.
+    
