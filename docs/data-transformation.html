@@ -31,7 +31,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="data-sources-and-description.html"/>
+<link rel="prev" href="data-sources.html"/>
 <link rel="next" href="missing-values.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -50,6 +50,7 @@
 
 
 
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
 <link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
 
@@ -72,9 +73,14 @@
 
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
-<li class="chapter" data-level="2" data-path="data-sources-and-description.html"><a href="data-sources-and-description.html"><i class="fa fa-check"></i><b>2</b> Data sources and description</a></li>
+<li class="chapter" data-level="2" data-path="data-sources.html"><a href="data-sources.html"><i class="fa fa-check"></i><b>2</b> Data sources</a></li>
 <li class="chapter" data-level="3" data-path="data-transformation.html"><a href="data-transformation.html"><i class="fa fa-check"></i><b>3</b> Data transformation</a><ul>
-<li class="chapter" data-level="3.1" data-path="data-transformation.html"><a href="data-transformation.html#percentage"><i class="fa fa-check"></i><b>3.1</b> Percentage</a></li>
+<li class="chapter" data-level="3.1" data-path="data-transformation.html"><a href="data-transformation.html#percentage-data"><i class="fa fa-check"></i><b>3.1</b> Percentage data</a><ul>
+<li class="chapter" data-level="3.1.1" data-path="data-transformation.html"><a href="data-transformation.html#increase-in-covid-19-cases"><i class="fa fa-check"></i><b>3.1.1</b> Increase in covid-19 cases</a></li>
+<li class="chapter" data-level="3.1.2" data-path="data-transformation.html"><a href="data-transformation.html#inpatient-bed-occupation"><i class="fa fa-check"></i><b>3.1.2</b> Inpatient Bed Occupation</a></li>
+<li class="chapter" data-level="3.1.3" data-path="data-transformation.html"><a href="data-transformation.html#previous-day-confirmedsuspected-case-for-adult-pediatric"><i class="fa fa-check"></i><b>3.1.3</b> Previous Day Confirmed/Suspected Case for Adult &amp; Pediatric</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="data-transformation.html"><a href="data-transformation.html#nationwide-data"><i class="fa fa-check"></i><b>3.2</b> Nationwide data</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
 <li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
@@ -101,10 +107,132 @@
             <section class="normal" id="section-">
 <div id="data-transformation" class="section level1">
 <h1><span class="header-section-number">Chapter 3</span> Data transformation</h1>
-<div id="percentage" class="section level2">
-<h2><span class="header-section-number">3.1</span> Percentage</h2>
+<div id="percentage-data" class="section level2">
+<h2><span class="header-section-number">3.1</span> Percentage data</h2>
+<p>To investigate the trend in each state, it is necessary to study the change in the percentage of bed occupations and confired/suspected cases besides comparing the real numbers. Therefore, we transform the values of some columns into percentage.</p>
+<div id="increase-in-covid-19-cases" class="section level3">
+<h3><span class="header-section-number">3.1.1</span> Increase in covid-19 cases</h3>
 <ul>
-<li>Some real numbers of counting need to be trasformed into the percentage for the use of studying the trends. For example, the number of inpatiend beds used for covid-19 will be transformed into the percetage in order to see if the inpatiend beds of the hospitals are overloaded due to covid-19.</li>
+<li><p>The relationship between the covid-19 cases and hospital utilization might be highly related. We are interested in how many of the suspected/confirmed cases are in each state. Therefore, we would transform the counts of newly increased cases into the percentage of admitted covid-19 cases among the total cases in each state.</p></li>
+<li><p>Raw values:</p></li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>tot_cases: [int]</li>
+<li>new_case: [int]</li>
+<li>tot_death: [int]</li>
+<li>new_death: [int]</li>
+</ol>
+<ul>
+<li>Transformed values:</li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>new_case_P: [float] new_case / tot_cases</li>
+<li>tot_death_P: [int] tot_death / tot_cases</li>
+<li>new_death_P: [int] new_death / tot_death</li>
+</ol>
+</div>
+<div id="inpatient-bed-occupation" class="section level3">
+<h3><span class="header-section-number">3.1.2</span> Inpatient Bed Occupation</h3>
+<ul>
+<li><p>Some real numbers of counting need to be trasformed into the percentage for the use of studying the trends. For example, the number of inpatiend beds used for covid-19 will be transformed into the percetage in order to see if the inpatiend beds of the hospitals are overloaded due to covid-19.</p></li>
+<li><p>Raw values:</p></li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>inpatient_beds: [int]</li>
+<li>inpatient_beds_used: [int]</li>
+<li>inpatient_beds_used_covid: [int]</li>
+</ol>
+<ul>
+<li>Transformed values:</li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>inpatient_beds_used_P: [float] inpatient_beds_used/inpatient_beds</li>
+<li>inpatient_beds_used_covid_P: [float] inpatient_beds_used_covid/inpatient_beds</li>
+</ol>
+</div>
+<div id="previous-day-confirmedsuspected-case-for-adult-pediatric" class="section level3">
+<h3><span class="header-section-number">3.1.3</span> Previous Day Confirmed/Suspected Case for Adult &amp; Pediatric</h3>
+<ul>
+<li><p>To study the differences between the impact on the adults and pediatrics from covid-19, we will split the data into two groups and study the changes of suspected/confirmed cases respectively in both groups. The impact of covid-19 on two groups might be different in different states so the average changes of two groups in US will be taken as the baseline to compare with the one of each state as well.</p></li>
+<li><p>Raw values:
+Adult:<br />
+</p></li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>previous_day_admission_adult_covid_confirmed: [int]</li>
+<li>previous_day_admission_adult_covid_suspected: [int]</li>
+</ol>
+<p>Pediatric:
+1) previous_day_admission_pediatric_covid_confirmed: [int]
+2) previous_day_admission_pediatric_covid_suspected: [int]</p>
+<ul>
+<li>Transformed values:
+Adult:</li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>previous_day_admission_adult_covid_cases: [int] previous_day_admission_adult_covid_confirmed + previous_day_admission_adult_covid_suspected</li>
+<li>previous_day_admission_adult_covid_confirmed_P: [float] previous_day_admission_adult_covid_confirmed / previous_day_admission_adult_covid_cases</li>
+<li>previous_day_admission_adult_covid_suspected_P: [float] previous_day_admission_adult_covid_suspected / previous_day_admission_adult_covid_cases</li>
+</ol>
+<p>Pediatric:
+1) previous_day_admission_pediatric_covid_cases: [int] previous_day_admission_pediatric_covid_confirmed + previous_day_admission_pediatric_covid_suspected
+2) previous_day_admission_pediatric_covid_confirmed_P: [float] previous_day_admission_pediatric_covid_confirmed / previous_day_admission_pediatric_covid_cases
+3) previous_day_admission_pediatric_covid_suspected_P: [float] previous_day_admission_pediatric_covid_suspected / previous_day_admission_pediatric_covid_cases</p>
+<pre><code>##         date state new_case_P tot_death_P new_death_P inpatient_beds_used_P
+## 1 2020-03-05    AK        NaN         NaN         NaN                    NA
+## 2 2020-03-05    AL        NaN         NaN         NaN             0.2580645
+## 3 2020-03-05    AR        NaN         NaN         NaN                    NA
+## 4 2020-03-05    AZ  0.3333333  0.00000000         NaN             0.9800000
+## 5 2020-03-05    CA  0.2000000  0.02222222           1             0.3636364
+## 6 2020-03-05    CO  1.0000000  0.00000000         NaN                    NA
+##   inpatient_beds_used_covid_P previous_day_admission_adult_covid_cases
+## 1                          NA                                       NA
+## 2                           0                                       NA
+## 3                          NA                                       NA
+## 4                           0                                       NA
+## 5                           0                                       NA
+## 6                          NA                                       NA
+##   previous_day_admission_pediatric_covid_confirmed_P
+## 1                                                 NA
+## 2                                                 NA
+## 3                                                 NA
+## 4                                                 NA
+## 5                                                 NA
+## 6                                                 NA
+##   previous_day_admission_adult_covid_suspected_P
+## 1                                             NA
+## 2                                             NA
+## 3                                             NA
+## 4                                             NA
+## 5                                             NA
+## 6                                             NA
+##   previous_day_admission_pediatric_covid_cases
+## 1                                           NA
+## 2                                           NA
+## 3                                           NA
+## 4                                           NA
+## 5                                           NA
+## 6                                           NA
+##   previous_day_admission_pediatric_covid_confirmed_P.1
+## 1                                                   NA
+## 2                                                   NA
+## 3                                                   NA
+## 4                                                   NA
+## 5                                                   NA
+## 6                                                   NA
+##   previous_day_admission_pediatric_covid_suspected_P
+## 1                                                 NA
+## 2                                                 NA
+## 3                                                 NA
+## 4                                                 NA
+## 5                                                 NA
+## 6                                                 NA</code></pre>
+</div>
+</div>
+<div id="nationwide-data" class="section level2">
+<h2><span class="header-section-number">3.2</span> Nationwide data</h2>
+<ul>
+<li>We group-by the data by date and summaries the counting values of some columns to investigate the trend of the nationwide situation. To study the trends of covid-19 over states and its impact on the hospital utilization, we have grouped-by the data by states and look into the situations changing along with time. Since the trends might be different due to the policies, population size and resources of each state, we will also be interested in how the differeces look like by comparing the trend of each state with the one of the whole country.</li>
 </ul>
 
 </div>
@@ -114,7 +242,7 @@
           </div>
         </div>
       </div>
-<a href="data-sources-and-description.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="data-sources.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 <a href="missing-values.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>

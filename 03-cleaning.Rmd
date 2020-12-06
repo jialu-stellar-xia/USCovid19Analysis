@@ -1,6 +1,7 @@
 # Data transformation
 
 ```{r}
+library(tidyverse)
 covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
 ```
 

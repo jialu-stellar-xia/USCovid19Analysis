@@ -3,7 +3,7 @@
 library(naniar)
 ```
 ```{r}
-Covid19_selected_df
+Covid19_selected_df=read.csv("data/Covid19_selected.csv")
 ```
 First we can have a quick review of our dataset, we can see clearly that their are many missing values (NA entries) in our dataframe.
 

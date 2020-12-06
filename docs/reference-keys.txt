@@ -6,3 +6,9 @@ missing-values
 results
 interactive-component
 conclusion
+data-sources
+percentage-data
+increase-in-covid-19-cases
+inpatient-bed-occupation
+previous-day-confirmedsuspected-case-for-adult-pediatric
+nationwide-data
