@@ -1,1 +1,112 @@
 # Data transformation
+
+```{r}
+covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
+```
+
+## Percentage data
+To investigate the trend in each state, it is necessary to study the change in the percentage of bed occupations and confired/suspected cases besides comparing the real numbers. Therefore, we transform the values of some columns into percentage.
+
+### Increase in covid-19 cases
+* The relationship between the covid-19 cases and hospital utilization might be highly related. We are interested in how many of the suspected/confirmed cases are in each state. Therefore, we would transform the counts of newly increased cases into the percentage of admitted covid-19 cases among the total cases in each state.
+
+* Raw values:
+1) tot_cases: [int] 
+2) new_case: [int] 
+3) tot_death: [int] 
+4) new_death: [int] 
+
+* Transformed values:
+1) new_case_P: [float] new_case / tot_cases
+2) tot_death_P: [int] tot_death / tot_cases
+3) new_death_P: [int] new_death / tot_death
+    
+```{r}
+new_case_P = covid19_merged_df$new_case / covid19_merged_df$tot_cases
+tot_death_P = covid19_merged_df$tot_death / covid19_merged_df$tot_cases
+new_death_P = covid19_merged_df$new_death / covid19_merged_df$tot_death
+```
+
+### Inpatient Bed Occupation
+* Some real numbers of counting need to be trasformed into the percentage for the use of studying the trends. For example, the number of inpatiend beds used for covid-19 will be transformed into the percetage in order to see if the inpatiend beds of the hospitals are overloaded due to covid-19.
+
+* Raw values:
+1) inpatient_beds: [int]
+2) inpatient_beds_used: [int]
+3) inpatient_beds_used_covid: [int]
+
+* Transformed values:
+1) inpatient_beds_used_P: [float] inpatient_beds_used/inpatient_beds
+2) inpatient_beds_used_covid_P: [float]  inpatient_beds_used_covid/inpatient_beds
+    
+```{r}
+inpatient_beds_used_P = covid19_merged_df$inpatient_beds_used / covid19_merged_df$inpatient_beds
+inpatient_beds_used_covid_P = covid19_merged_df$inpatient_beds_used_covid / covid19_merged_df$inpatient_beds
+```
+
+### Previous Day Confirmed/Suspected Case for Adult & Pediatric
+* To study the differences between the impact on the adults and pediatrics from covid-19, we will split the data into two groups and study the changes of suspected/confirmed cases respectively in both groups. The impact of covid-19 on two groups might be different in different states so the average changes of two groups in US will be taken as the baseline to compare with the one of each state as well.
+
+* Raw values:
+Adult:  
+1) previous_day_admission_adult_covid_confirmed: [int]
+2) previous_day_admission_adult_covid_suspected: [int]
+
+Pediatric:
+1) previous_day_admission_pediatric_covid_confirmed: [int]
+2) previous_day_admission_pediatric_covid_suspected: [int]
+
+* Transformed values:
+Adult:
+1) previous_day_admission_adult_covid_cases: [int] previous_day_admission_adult_covid_confirmed + previous_day_admission_adult_covid_suspected
+2) previous_day_admission_adult_covid_confirmed_P: [float] previous_day_admission_adult_covid_confirmed / previous_day_admission_adult_covid_cases
+3) previous_day_admission_adult_covid_suspected_P: [float] previous_day_admission_adult_covid_suspected / previous_day_admission_adult_covid_cases
+
+Pediatric:
+1) previous_day_admission_pediatric_covid_cases: [int] previous_day_admission_pediatric_covid_confirmed + previous_day_admission_pediatric_covid_suspected
+2) previous_day_admission_pediatric_covid_confirmed_P: [float] previous_day_admission_pediatric_covid_confirmed / previous_day_admission_pediatric_covid_cases
+3) previous_day_admission_pediatric_covid_suspected_P: [float] previous_day_admission_pediatric_covid_suspected / previous_day_admission_pediatric_covid_cases
+
+```{r}
+# Adult
+previous_day_admission_adult_covid_cases = covid19_merged_df$previous_day_admission_adult_covid_confirmed + covid19_merged_df$previous_day_admission_adult_covid_suspected
+previous_day_admission_pediatric_covid_confirmed_P = covid19_merged_df$previous_day_admission_adult_covid_confirmed / previous_day_admission_adult_covid_cases
+previous_day_admission_adult_covid_suspected_P = covid19_merged_df$previous_day_admission_adult_covid_suspected / previous_day_admission_adult_covid_cases
+
+# Pediatric
+previous_day_admission_pediatric_covid_cases = covid19_merged_df$previous_day_admission_pediatric_covid_confirmed + covid19_merged_df$previous_day_admission_pediatric_covid_suspected
+previous_day_admission_pediatric_covid_confirmed_P = covid19_merged_df$previous_day_admission_pediatric_covid_confirmed / previous_day_admission_pediatric_covid_cases
+previous_day_admission_pediatric_covid_suspected_P = covid19_merged_df$previous_day_admission_pediatric_covid_suspected / previous_day_admission_pediatric_covid_cases
+```
+
+```{r}
+# Assemble previous columns
+perccentage_df = data.frame(
+  date = covid19_merged_df$date,
+  state = covid19_merged_df$state,
+  new_case_P = new_case_P,
+  tot_death_P = tot_death_P,
+  new_death_P = new_death_P,
+  inpatient_beds_used_P = inpatient_beds_used_P,
+  inpatient_beds_used_covid_P = inpatient_beds_used_covid_P,
+  previous_day_admission_adult_covid_cases = previous_day_admission_adult_covid_cases,
+  previous_day_admission_pediatric_covid_confirmed_P = previous_day_admission_pediatric_covid_confirmed_P,
+  previous_day_admission_adult_covid_suspected_P = previous_day_admission_adult_covid_suspected_P,
+  previous_day_admission_pediatric_covid_cases = previous_day_admission_pediatric_covid_cases,
+  previous_day_admission_pediatric_covid_confirmed_P = previous_day_admission_pediatric_covid_confirmed_P,
+  previous_day_admission_pediatric_covid_suspected_P = previous_day_admission_pediatric_covid_suspected_P
+)
+head(perccentage_df)
+```
+
+## Nationwide data
+* We group-by the data by date and summaries the counting values of some columns to investigate the trend of the nationwide situation. To study the trends of covid-19 over states and its impact on the hospital utilization, we have grouped-by the data by states and look into the situations changing along with time. Since the trends might be different due to the policies, population size and resources of each state, we will also be interested in how the differeces look like by comparing the trend of each state with the one of the whole country.
+
+```{r}
+US_cases_df <-covid19_merged_df %>% 
+  group_by(date) %>% 
+  summarise(us_cases=sum(tot_cases),
+            us_new_cases=sum(new_case),
+            us_tot_death=sum(tot_death),
+            us_new_death=sum(new_death))
+```
