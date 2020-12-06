@@ -1,6 +1,7 @@
 introduction
-data-sources
+data-sources-and-description
 data-transformation
+percentage
 missing-values
 results
 interactive-component
