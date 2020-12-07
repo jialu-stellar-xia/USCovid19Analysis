@@ -1,1 +1,63 @@
 # Results
+
+```{r}
+library(usmap)
+library(ggplot2)
+
+library(shiny)
+library(r2d3)
+```
+
+```{r}
+covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
+covid19_merged_df$date = as.character(covid19_merged_df$date)
+
+US_cases_df$date = as.character(US_cases_df$date)
+US_cases_df$date = parse_date(US_cases_df$date,format = "%Y-%m-%d")
+```
+
+## Total cases in US
+```{r}
+# Extract the latest data for all states
+latest_date = last(covid19_merged_df$date)
+latest_US_cases = covid19_merged_df[covid19_merged_df$date == latest_date, ]
+
+# Plot the latest confirmed cases in US by states
+plot_usmap(data = latest_US_cases, values = "tot_cases", color = "red") + 
+  scale_fill_continuous(name = "Confirmed covid-19 cases",low = "white", high = "red", label = scales::comma) + 
+  theme(legend.position = "right")
+```
+
+## Total cases in US (interactive)
+```{r}
+ui <- fluidPage(
+  dateRangeInput("Date",
+                 label = "Date range:",
+                 format = "yyyy-mm-dd", 
+                 min = "2020-03-05",
+                 max = "2020-11-15",
+                 start = "2020-03-05",
+                 separator="-"),
+  headerPanel("US covid-19 Confirmed Cases"),
+  mainPanel(plotOutput("Graph"))
+)
+
+server <- function(input, output) {
+  
+  date_start <- reactive({input$Date})
+  
+  selected_US <- reactive({
+#        start_date = parse_date(input$Date[1],format = "%Y-%m-%d")
+ #       end_date = parse_date(input$Date[2],format = "%Y-%m-%d")
+        filter(US_cases_df, between(date, input$Date[1], input$Date[2]))
+  })
+  
+  output$Graph <- renderPlot({
+        ggplot(data=selected_US(), aes(x=date, y=us_cases)) +
+                geom_line()
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
