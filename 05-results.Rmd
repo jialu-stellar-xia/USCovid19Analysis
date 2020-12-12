@@ -1,18 +1,18 @@
 # Results
 ```{r}
+library(ggridges)
+```
+```{r}
+Covid19_selected_df =  read.csv("./data/Covid19_selected.csv")
+```
+
+```{r}
 Covid19_selected_df$Month <- format(as.Date(Covid19_selected_df$date), "%m")
-Covid19_selected_df$Day <- format(as.Date(Covid19_selected_df$date), "%d")
-```
-```{r}
 data <- Covid19_selected_df %>% select(Month, total_adult_patients_hospitalized_confirmed_covid, total_pediatric_patients_hospitalized_confirmed_covid)
-```
-```{r}
 newdata <- na.omit(data)
 ```
 ```{r}
 data <- newdata %>% arrange(Month, total_adult_patients_hospitalized_confirmed_covid, total_pediatric_patients_hospitalized_confirmed_covid) %>% group_by(Month) %>% summarise(across(everything(), last))
-```
-```{r}
 tidydata <- data %>% pivot_longer(cols = !Month, names_to = "stat", values_to = "number")
 tidydata
 ```
@@ -21,3 +21,15 @@ ggplot(tidydata, aes(fill=stat, y=number, x=Month)) +
     geom_bar(position="fill", stat="identity")
 ```
 
+
+
+```{r}
+Covid19_selected_df$new_total <- Covid19_selected_df$new_case / Covid19_selected_df$tot_cases
+Covid19_selected_df
+```
+
+```{r}
+ggplot(data = Covid19_selected_df, aes(X, new_total)) +
+  geom_line() +
+  facet_wrap(.~state)
+```
