@@ -1,1 +1,14 @@
 # Results
+```{r}
+Covid19_selected_df=read.csv("data/Covid19_selected.csv")
+```
+```{r}
+Covid19_selected_df$Month <- format(as.Date(Covid19_selected_df$date), "%m")
+Covid19_selected_df$Day <- format(as.Date(Covid19_selected_df$date), "%d")
+```
+```{r}
+
+```
+
+
+
