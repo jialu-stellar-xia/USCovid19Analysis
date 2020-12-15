@@ -190,6 +190,7 @@ plot_usmap(data = na.omit(covid19_tot_cases), values = "all_total", color = "red
   facet_wrap(~Date_month, ncol=3, drop=TRUE)
 ```
 
+## Comparison between adult and pediatric patient over time
 ```{r}
 library(ggridges)
 ```
@@ -207,9 +208,19 @@ data <- newdata %>% arrange(Month, total_adult_patients_hospitalized_confirmed_c
 tidydata <- data %>% pivot_longer(cols = !Month, names_to = "stat", values_to = "number")
 tidydata
 ```
+
 ```{r}
 ggplot(tidydata, aes(fill=stat, y=number, x=Month)) + 
     geom_bar(position="fill", stat="identity")
+```
+
+## New case / Total case in different states
+```{r}
+Covid19_selected_df$increase_rate = Covid19_selected_df$new_case / Covid19_selected_df$tot_cases
+```
+```{r}
+ggplot(data=Covid19_selected_df, aes(x=X, y = increase_rate, group = state)) + 
+  geom_line() + facet_wrap(~state)
 ```
 
 
