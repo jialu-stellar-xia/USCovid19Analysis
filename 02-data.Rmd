@@ -7,12 +7,13 @@ editor_options:
 
 * Two Covid-19 datasets in csv format are collected from [healthdata.gov](https://healthdata.gov/). They are [COVID-19 cases and deaths by States over time (Cases_and_Deaths)](https://healthdata.gov/dataset/united-states-covid-19-cases-and-deaths-state-over-time) and [COVID-19 patient impact and hospital capacity by State over time (Hospital_Utilization)](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-state-timeseries). We would combine two datasets for our use.
 ```{r}
-Cases_and_Deaths<-read.csv("data/United_States_COVID-19_Cases_and_Deaths_by_State_over_Time.csv")
-Hospital_Utilization<-read.csv("data/reported_hospital_utilization_timeseries_20201115_2134.csv")
+library(tidyverse)
+Cases_and_Deaths<-read_csv("data/United_States_COVID-19_Cases_and_Deaths_by_State_over_Time.csv")
+Hospital_Utilization<-read_csv("data/reported_hospital_utilization_timeseries_20201115_2134.csv")
 ```
 * Cases_and_Deaths has 18000 observations by 60 States from 2020-01-22 to 2020-11-16. Hospital_Utilization has 14003 observations by 53 States from 2020-01-01 to 2020-11-15.
 ```{r}
-library(tidyverse)
+
 Cases_and_Deaths$submission_date<-parse_date(Cases_and_Deaths$submission_date,format = "%m/%d/%Y")
 
 print(paste0("Number of States in Cases_and_Deaths is ",length(unique(Cases_and_Deaths$state)),"."))
