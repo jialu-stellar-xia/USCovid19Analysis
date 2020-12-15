@@ -1,0 +1,622 @@
+--- 
+title: "USCovid19Analysis"
+author: "Haoxiong Su; Jialu Xia; Yifei Zhang"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+---
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+# Introduction
+```{r}
+library(bookdown)
+```
+
+<!--chapter:end:index.Rmd-->
+
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+# Data sources
+
+* Two Covid-19 datasets in csv format are collected from [healthdata.gov](https://healthdata.gov/). They are [COVID-19 cases and deaths by States over time (Cases_and_Deaths)](https://healthdata.gov/dataset/united-states-covid-19-cases-and-deaths-state-over-time) and [COVID-19 patient impact and hospital capacity by State over time (Hospital_Utilization)](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-state-timeseries). We would combine two datasets for our use.
+```{r}
+library(tidyverse)
+Cases_and_Deaths<-read_csv("data/United_States_COVID-19_Cases_and_Deaths_by_State_over_Time.csv")
+Hospital_Utilization<-read_csv("data/reported_hospital_utilization_timeseries_20201115_2134.csv")
+```
+* Cases_and_Deaths has 18000 observations by 60 States from 2020-01-22 to 2020-11-16. Hospital_Utilization has 14003 observations by 53 States from 2020-01-01 to 2020-11-15.
+```{r}
+Cases_and_Deaths$submission_date<-parse_date(Cases_and_Deaths$submission_date,format = "%m/%d/%Y")
+
+print(paste0("Number of States in Cases_and_Deaths is ",length(unique(Cases_and_Deaths$state)),"."))
+print(paste0("Cases_and_Deaths records data from ",unique(Cases_and_Deaths$submission_date)[1], " to ", unique(Cases_and_Deaths$submission_date)[length(unique(Cases_and_Deaths$submission_date))], "."))
+
+
+print(paste0("Number of States in Hospital_Utilization is ",length(unique(Hospital_Utilization$state)),"."))
+print(paste0("Hospital_Utilization records data from ",unique(Hospital_Utilization$date)[length(unique(Hospital_Utilization$date))], " to ",unique(Hospital_Utilization$date)[1] , "."))
+```
+
+* Two datasets are inconsistent in Date and States. To join them together, We chose the starting date at when the pandemic broke out (when total cases in US exceeded 100). And only focused on 50 States in "state" package. Covid19_df is the merged dataframe.
+```{r}
+US_cases<-Cases_and_Deaths %>% 
+  group_by(submission_date) %>% 
+  summarise(us_cases=sum(tot_cases)) %>% 
+  ungroup() %>% 
+  filter(us_cases>=100)
+start_date=unique(US_cases$submission_date)[1]
+print(paste0("Covid-19 broke out among US at ", start_date, "."))
+```
+```{r}
+#select data with date later than 2020-03-05 and state in state.abb
+Cases_and_Deaths_filtered<-Cases_and_Deaths %>% 
+  rename(date=submission_date) %>% 
+  filter(date >= "2020/03/05") %>% 
+  filter(date <= "2020/11/15") %>% 
+  filter(state %in% state.abb)
+
+Hospital_Utilization_filtered<-Hospital_Utilization %>% 
+  filter(date>="2020/03/05") %>% 
+  filter(state %in% state.abb)
+
+#merge two dataframes by date and state
+
+Covid19_df<-merge(x=Cases_and_Deaths_filtered, y=Hospital_Utilization_filtered, by=c("date", "state"),
+                  all=TRUE)
+```
+
+* There are many useless variables for our analysis. We would drop all redundant variables. Covid19_selected_df is the dateframe we would use in analysis.
+```{r}
+Covid19_selected_df<-Covid19_df %>% 
+  select(date,state,tot_cases,
+         new_case,tot_death,new_death,
+         hospital_onset_covid,
+         inpatient_beds,
+         inpatient_beds_used,
+         inpatient_beds_used_covid,
+         previous_day_admission_adult_covid_confirmed, 
+         previous_day_admission_adult_covid_suspected, 
+         previous_day_admission_pediatric_covid_confirmed,
+         previous_day_admission_pediatric_covid_suspected,
+         staffed_adult_icu_bed_occupancy,
+         staffed_icu_adult_patients_confirmed_and_suspected_covid,
+         staffed_icu_adult_patients_confirmed_covid,
+         total_adult_patients_hospitalized_confirmed_and_suspected_covid, 
+         total_adult_patients_hospitalized_confirmed_covid,
+         total_pediatric_patients_hospitalized_confirmed_and_suspected_covid,
+         total_pediatric_patients_hospitalized_confirmed_covid,
+         total_staffed_adult_icu_beds,
+         inpatient_beds_utilization,
+         percent_of_inpatients_with_covid,
+         inpatient_bed_covid_utilization,
+         adult_icu_bed_covid_utilization,
+         adult_icu_bed_utilization 
+         )
+```
+
+* Data Dictionary
+    1) date: [chr] report date.
+    2) state: [chr] The two digit state code.
+    3) tot_cases: [int] total cases in this state until the previous day.
+    4) new_case: [int] new cases in this state on the previous day.
+    5) tot_death: [int] total deaths in this state until the previous day.
+    6) new_death: [int] new death in this state on the previous day.
+    7) hospital_onset_covid: [int] Total current inpatients with onset of suspected or laboratory-confirmed COVID-19 fourteen or more days after admission for a condition other than COVID-19 in this state.
+    8) inpatient_beds: [int] Reported total number of staffed inpatient beds including all overflow and surge/expansion beds used for inpatients (includes all ICU beds) in this state.
+    9) inpatient_beds_used: [int] Reported total number of staffed inpatient beds that are occupied in this state.
+    10) inpatient_beds_used_covid: [int] Reported patients currently hospitalized in an inpatient bed who have suspected or confirmed COVID-19 in this state.
+    11) previous_day_admission_adult_covid_confirmed: [int] Number of patients who were admitted to an adult inpatient bed on the previous calendar day who had confirmed COVID-19 at the time of admission in this state.
+    12) previous_day_admission_adult_covid_suspected: [int] Number of patients who were admitted to an adult inpatient bed on the previous calendar day who had suspected COVID-19 at the time of admission in this state.
+    13) previous_day_admission_pediatric_covid_confirmed: [int] Number of pediatric patients who were admitted to an inpatient bed, including NICU, PICU, newborn, and nursery, on the previous calendar day who had confirmed COVID-19 at the time of admission in this state.
+    14) previous_day_admission_pediatric_covid_suspected: [int] Number of pediatric patients who were admitted to an inpatient bed, including NICU, PICU, newborn, and nursery, on the previous calendar day who had suspected COVID-19 at the time of admission in this state.
+    15) staffed_adult_icu_bed_occupancy: [int] Reported total number of staffed inpatient adult ICU beds that are occupied in this state.
+    16) staffed_icu_adult_patients_confirmed_and_suspected_covid: [int] Reported patients currently hospitalized in an adult ICU bed who have suspected or confirmed COVID-19 in this state.
+    17) staffed_icu_adult_patients_confirmed_covid: [int] Reported patients currently hospitalized in an adult ICU bed who have confirmed COVID-19 in this state.
+    18) total_adult_patients_hospitalized_confirmed_and_suspected_covid: [int] Reported patients currently hospitalized in an adult inpatient
+bed who have laboratory-confirmed or suspected COVID-19. This include those in observation beds.
+    19) total_adult_patients_hospitalized_confirmed_covid: [int] Reported patients currently hospitalized in an adult inpatient
+bed who have laboratory-confirmed COVID-19. This include those in observation beds.
+    20) total_pediatric_patients_hospitalized_confirmed_and_suspected_covid: [int] Reported patients currently hospitalized in a pediatric inpatient bed, including NICU, newborn, and nursery, who are suspected or laboratory-confirmed-positive for COVID-19. This include those in observation beds.
+    21) total_pediatric_patients_hospitalized_confirmed_covid: [int] Reported patients currently hospitalized in a pediatric inpatient
+bed, including NICU, newborn, and nursery, who are laboratory-confirmed-positive for COVID-19. This include those in observation beds.
+    22) total_staffed_adult_icu_beds: [int] Reported total number of staffed inpatient adult ICU beds in this state.
+    23) inpatient_beds_utilization: [num] Percentage of inpatient beds that are being utilized in this state. This number only accounts for hospitals in the state that report both "inpatient_beds_used" and "inpatient_beds" fields.
+    24) percent_of_inpatients_with_covid: [num] Percentage of inpatient population who have suspected or confirmed COVID-19 in this state. This number only accounts for hospitals in the state that report both "inpatient_beds_used_covid" and "inpatient_beds_used" fields.
+    25) inpatient_bed_covid_utilization: [num] Percentage of total (used/available) inpatient beds currently utilized by patients who have suspected or confirmed COVID-19 in this state. This number only accounts for hospitals in the state that report both "inpatient_beds_used_covid" and "inpatient_beds" fields.
+    26) adult_icu_bed_covid_utilization: [num] Percentage of total staffed adult ICU beds currently utilized by patients who have suspected or confirmed COVID-19 in this state. This number only accounts for hospitals in the state that report both "staffed_icu_adult_patients_confirmed_and_suspected_covid" and "total_staffed_adult_icu_beds" fields.
+    27) adult_icu_bed_utilization: [num] Percentage of staffed adult ICU beds that are being utilized in this state. This number only accounts for hospitals in the state that report both "staffed_adult_icu_bed_occupancy" and "total_staffed_adult_icu_beds" fields.
+
+* The data is not 100% accurate. Since COVID-19 can cause mild illness, symptoms might not appear immediately, there are delays in reporting and testing, not everyone who is infected gets tested or seeks medical care, and there are differences in how completely states and territories report their cases.
+    
+
+<!--chapter:end:02-data.Rmd-->
+
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+# Data transformation
+
+```{r}
+library(tidyverse)
+covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
+```
+
+## Percentage data
+To investigate the trend in each state, it is necessary to study the change in the percentage of bed occupations and confired/suspected cases besides comparing the real numbers. Therefore, we transform the values of some columns into percentage.
+
+### Increase in covid-19 cases
+* The relationship between the covid-19 cases and hospital utilization might be highly related. We are interested in how many of the suspected/confirmed cases are in each state. Therefore, we would transform the counts of newly increased cases into the percentage of admitted covid-19 cases among the total cases in each state.
+
+* Raw values:
+1) tot_cases: [int] 
+2) new_case: [int] 
+3) tot_death: [int] 
+4) new_death: [int] 
+
+* Transformed values:
+1) new_case_P: [float] new_case / tot_cases
+2) tot_death_P: [int] tot_death / tot_cases
+3) new_death_P: [int] new_death / tot_death
+    
+```{r}
+new_case_P = covid19_merged_df$new_case / covid19_merged_df$tot_cases
+tot_death_P = covid19_merged_df$tot_death / covid19_merged_df$tot_cases
+new_death_P = covid19_merged_df$new_death / covid19_merged_df$tot_death
+```
+
+### Inpatient Bed Occupation
+* Some real numbers of counting need to be trasformed into the percentage for the use of studying the trends. For example, the number of inpatiend beds used for covid-19 will be transformed into the percetage in order to see if the inpatiend beds of the hospitals are overloaded due to covid-19.
+
+* Raw values:
+1) inpatient_beds: [int]
+2) inpatient_beds_used: [int]
+3) inpatient_beds_used_covid: [int]
+
+* Transformed values:
+1) inpatient_beds_used_P: [float] inpatient_beds_used/inpatient_beds
+2) inpatient_beds_used_covid_P: [float]  inpatient_beds_used_covid/inpatient_beds
+    
+```{r}
+inpatient_beds_used_P = covid19_merged_df$inpatient_beds_used / covid19_merged_df$inpatient_beds
+inpatient_beds_used_covid_P = covid19_merged_df$inpatient_beds_used_covid / covid19_merged_df$inpatient_beds
+```
+
+### Previous Day Confirmed/Suspected Case for Adult & Pediatric
+* To study the differences between the impact on the adults and pediatrics from covid-19, we will split the data into two groups and study the changes of suspected/confirmed cases respectively in both groups. The impact of covid-19 on two groups might be different in different states so the average changes of two groups in US will be taken as the baseline to compare with the one of each state as well.
+
+* Raw values:
+Adult:  
+1) previous_day_admission_adult_covid_confirmed: [int]
+2) previous_day_admission_adult_covid_suspected: [int]
+
+Pediatric:
+1) previous_day_admission_pediatric_covid_confirmed: [int]
+2) previous_day_admission_pediatric_covid_suspected: [int]
+
+* Transformed values:
+Adult:
+1) previous_day_admission_adult_covid_cases: [int] previous_day_admission_adult_covid_confirmed + previous_day_admission_adult_covid_suspected
+2) previous_day_admission_adult_covid_confirmed_P: [float] previous_day_admission_adult_covid_confirmed / previous_day_admission_adult_covid_cases
+3) previous_day_admission_adult_covid_suspected_P: [float] previous_day_admission_adult_covid_suspected / previous_day_admission_adult_covid_cases
+
+Pediatric:
+1) previous_day_admission_pediatric_covid_cases: [int] previous_day_admission_pediatric_covid_confirmed + previous_day_admission_pediatric_covid_suspected
+2) previous_day_admission_pediatric_covid_confirmed_P: [float] previous_day_admission_pediatric_covid_confirmed / previous_day_admission_pediatric_covid_cases
+3) previous_day_admission_pediatric_covid_suspected_P: [float] previous_day_admission_pediatric_covid_suspected / previous_day_admission_pediatric_covid_cases
+
+```{r}
+# Adult
+previous_day_admission_adult_covid_cases = covid19_merged_df$previous_day_admission_adult_covid_confirmed + covid19_merged_df$previous_day_admission_adult_covid_suspected
+previous_day_admission_pediatric_covid_confirmed_P = covid19_merged_df$previous_day_admission_adult_covid_confirmed / previous_day_admission_adult_covid_cases
+previous_day_admission_adult_covid_suspected_P = covid19_merged_df$previous_day_admission_adult_covid_suspected / previous_day_admission_adult_covid_cases
+
+# Pediatric
+previous_day_admission_pediatric_covid_cases = covid19_merged_df$previous_day_admission_pediatric_covid_confirmed + covid19_merged_df$previous_day_admission_pediatric_covid_suspected
+previous_day_admission_pediatric_covid_confirmed_P = covid19_merged_df$previous_day_admission_pediatric_covid_confirmed / previous_day_admission_pediatric_covid_cases
+previous_day_admission_pediatric_covid_suspected_P = covid19_merged_df$previous_day_admission_pediatric_covid_suspected / previous_day_admission_pediatric_covid_cases
+```
+
+```{r}
+# Assemble previous columns
+perccentage_df = data.frame(
+  date = covid19_merged_df$date,
+  state = covid19_merged_df$state,
+  new_case_P = new_case_P,
+  tot_death_P = tot_death_P,
+  new_death_P = new_death_P,
+  inpatient_beds_used_P = inpatient_beds_used_P,
+  inpatient_beds_used_covid_P = inpatient_beds_used_covid_P,
+  previous_day_admission_adult_covid_cases = previous_day_admission_adult_covid_cases,
+  previous_day_admission_pediatric_covid_confirmed_P = previous_day_admission_pediatric_covid_confirmed_P,
+  previous_day_admission_adult_covid_suspected_P = previous_day_admission_adult_covid_suspected_P,
+  previous_day_admission_pediatric_covid_cases = previous_day_admission_pediatric_covid_cases,
+  previous_day_admission_pediatric_covid_confirmed_P = previous_day_admission_pediatric_covid_confirmed_P,
+  previous_day_admission_pediatric_covid_suspected_P = previous_day_admission_pediatric_covid_suspected_P
+)
+head(perccentage_df)
+```
+
+## Nationwide data
+* We group-by the data by date and summaries the counting values of some columns to investigate the trend of the nationwide situation. To study the trends of covid-19 over states and its impact on the hospital utilization, we have grouped-by the data by states and look into the situations changing along with time. Since the trends might be different due to the policies, population size and resources of each state, we will also be interested in how the differeces look like by comparing the trend of each state with the one of the whole country.
+
+```{r}
+US_cases_df <-covid19_merged_df %>% 
+  group_by(date) %>% 
+  summarise(us_cases=sum(tot_cases),
+            us_new_cases=sum(new_case),
+            us_tot_death=sum(tot_death),
+            us_new_death=sum(new_death))
+```
+
+<!--chapter:end:03-cleaning.Rmd-->
+
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+# Missing values
+```{r}
+library(naniar)
+```
+```{r}
+Covid19_selected_df=read.csv("data/Covid19_selected.csv")
+```
+First we can have a quick review of our dataset, we can see clearly that their are many missing values (NA entries) in our dataframe.
+
+```{r}
+colSums(is.na(Covid19_selected_df))
+```
+A lot of columns have more than 5,000 missing values.
+
+```{r}
+vis_miss(Covid19_selected_df)
+```
+This plot provides a specific visualiation of the amount of missing data, showing in black the location of missing values, and also providing information on the overall percentage of missing values overall (in the legend), and in each variable.
+
+From this Most of missing values do not show by random, but they have patterns.
+
+```{r}
+gg_miss_var(Covid19_selected_df, show_pct = TRUE)
+```
+
+
+An upset plot from the UpSetR package can be used to visualise the patterns of missingness, or rather the combinations of missingness across cases. To see combinations of missingness and intersections of missingness amongst variables, use the gg_miss_upset function:
+
+```{r}
+gg_miss_upset(Covid19_selected_df)
+```
+6467 cases that those five columns have missing value together
+152 adult_icu_bed_occupancy and adult_icu_bed_covid_utilization_NA
+
+
+
+
+<!--chapter:end:04-missing.Rmd-->
+
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+# Results
+
+```{r}
+library(tidyverse)
+Covid_19<-read.csv("data/Covid19_selected.csv")
+```
+
+## Parallel coordinates plot for total cases 
+```{r}
+Pc_data<-Covid_19 %>% 
+  select(date,state,new_case) %>% 
+  drop_na() %>% 
+  mutate(month=cut(as.Date(date),breaks='month',labels=c('Mar',"Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"))) %>% 
+  group_by(month,state) %>% 
+  summarise(monthly_total_new_case=round(sum(new_case),0)) %>% 
+  ungroup()
+```
+```{r}
+Pc_tidydata<-Pc_data %>% 
+  spread(month, monthly_total_new_case)
+```
+
+```{r}
+library(fivethirtyeight)
+library(parcoords)
+parcoords(Pc_tidydata, brushMode = "1d-axes", reorderable = TRUE, rownames = FALSE)
+```
+
+## Pie chart for inpatient beds utilization
+
+```{r}
+pie_data<-Covid_19 %>% 
+  select(date,state,inpatient_beds,inpatient_beds_used,inpatient_beds_used_covid) %>% 
+  filter(date=="2020-11-15") %>% 
+  filter(state=="NJ") %>% 
+  mutate(inpatient_beds_empty=inpatient_beds-inpatient_beds_used,inpatient_beds_used_others=inpatient_beds_used-inpatient_beds_used_covid) %>% 
+  select(date,state,inpatient_beds_empty,inpatient_beds_used_covid,inpatient_beds_used_others)
+```
+```{r}
+pie_tidydata<-pie_data %>% 
+  pivot_longer(cols=!c(date,state),names_to="group",values_to="number") %>% 
+  mutate(group=as.factor(group)) %>% 
+  mutate(value=number/sum(number)*100) %>% 
+  mutate(ypos=cumsum(value)-0.5*value) %>% 
+  mutate(group=fct_relevel(group,'inpatient_beds_used_others','inpatient_beds_used_covid','inpatient_beds_empty'))
+```
+```{r}
+library(scales)
+pie_tidydata %>% ggplot(aes(x="",y=value,fill=group))+
+  geom_bar(stat="identity",width=1)+
+  coord_polar('y')+
+  theme_void()+
+  geom_text(aes(x=1.2,y=ypos,label=percent(value/100)),color="black",size=6)+
+  scale_fill_brewer()+
+  ggtitle("Inpatient beds utilization")+
+  theme(plot.title = element_text(face="bold",hjust = 0.5))
+
+```
+
+## Cleveland dot plot for inpatient bed availability
+```{r}
+Cd_data<-Covid_19 %>% 
+  select(date,state,inpatient_beds,inpatient_beds_used) %>% 
+  mutate(inpatient_beds_availible=inpatient_beds-inpatient_beds_used) %>%
+  drop_na() %>% 
+  mutate(month=cut(as.Date(date),breaks='month',labels=c('Mar',"Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"))) %>% 
+  group_by(month,state) %>% 
+  summarise(avrg_inpatient_beds_available=round(mean(inpatient_beds_availible),0))
+```
+
+```{r fig.height=10,fig.width=12}
+Cd_data %>% 
+  ggplot(aes(x=avrg_inpatient_beds_available,y=reorder(state,avrg_inpatient_beds_available)))+
+  geom_point()+
+  facet_wrap(~month,nrow=1,ncol = 9)+
+  ylab("")+
+  ggtitle("Monthly average number of avaliable inpatient beds over states")+
+  theme(plot.title = element_text(face="bold",hjust = 0.5))
+```
+
+From this dot plot, we can clearly see that hospitals in most of the states increased inpatient beds. Compare to other states, FL, CA, TX and NY prepared more beds for Covid patient.
+
+## Heatmap for death rate and bed availability 
+
+```{r}
+library(zoo)
+dot_data<-Covid_19 %>% 
+  select(date,state,inpatient_beds,inpatient_beds_used,tot_cases,tot_death) %>% 
+  mutate(inpatient_beds_availible=inpatient_beds-inpatient_beds_used) %>%
+  drop_na() %>%
+  mutate(death_rate=tot_death/tot_cases) %>% 
+  group_by(state) %>% 
+  mutate(capacity_07=rollmean(inpatient_beds_availible,k=7,fill=NA)) %>% 
+  mutate(death_rate_07=rollmean(death_rate,k=7,fill=NA)) %>% 
+  drop_na()
+```
+
+
+```{r}
+dot_data %>% 
+  ggplot(aes(capacity_07,death_rate_07)) +
+  scale_fill_gradient(low="#F6F8FB",high="#09005F")+
+  geom_hex(bins=10)+
+  xlab("7-days average available inpatient beds")+
+  ylab("7-days death rate")+
+  ggtitle("Heatmap for inpatient beds availability and Covid19 death rate")+
+  theme(plot.title = element_text(face="bold",hjust = 0.5))
+```
+
+This is a heatmap for available impatient beds and death rate. Because there is a delay for reporting death and death rate is more likely relating to number of available bed before death, we use the 7 days average value to see the relationship. It shows in the heapmap that
+
+* Data with death rate higher than 10% has number of available inpatient beds less than 5000.
+
+* When there are more than 15000 available inpatient beds, the death rate is below 5%.
+
+## Death rate and hospital admission rate (US)
+```{r}
+dh_data<-Covid_19 %>% 
+  select(date,state,tot_cases,tot_death,total_adult_patients_hospitalized_confirmed_covid,total_pediatric_patients_hospitalized_confirmed_covid) %>%
+  mutate(total_hospitalized_confirmed_covid=total_adult_patients_hospitalized_confirmed_covid+total_pediatric_patients_hospitalized_confirmed_covid) %>% 
+  group_by(date) %>% 
+  summarise_at(.vars=vars(tot_cases,tot_death,total_hospitalized_confirmed_covid),
+    .funs = c(sum="sum")) %>% 
+  
+  mutate(death_rate=tot_death_sum/tot_cases_sum,hospital_admission_rate=total_hospitalized_confirmed_covid_sum/tot_cases_sum) %>%
+  mutate(death_rate_07=rollmean(death_rate,k=7,fill=NA)) %>% 
+  mutate(hospital_admission_rat_07=rollmean(hospital_admission_rate,k=7,fill=NA)) %>% 
+  drop_na()
+  
+# hospital admission data start at 7-26
+```
+
+```{r}
+dh_tidydata <- dh_data%>% 
+  select(date,death_rate,hospital_admission_rate) %>% 
+  pivot_longer(cols=c(death_rate,hospital_admission_rate),names_to="variable",values_to="rate") 
+```
+
+```{r}
+dh_tidydata %>% ggplot(aes(x=as.Date(date),y=rate)) +
+  geom_line(aes(color=variable)) + 
+  scale_x_date(date_breaks="4 weeks")+
+  xlab("") +
+  ylim(0,0.03)+
+  ggtitle("Nationwide death rate vs. hospital admission rate")+
+  theme(plot.title = element_text(face="bold",hjust = 0.5))
+```
+
+
+
+
+library(usmap)
+library(ggplot2)
+
+library(shiny)
+library(r2d3)
+library(tidyverse)
+library(lubridate)
+```
+
+## Load Data
+```{r}
+covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
+covid19_merged_df$date = as.character(covid19_merged_df$date)
+covid19_merged_df$date = parse_date(covid19_merged_df$date, format = "%Y-%m-%d")
+
+US_cases_df$date = as.character(US_cases_df$date)
+US_cases_df$date = parse_date(US_cases_df$date,format = "%Y-%m-%d")
+```
+
+## Compare death rates between two states in US (D3)
+<script src="https://d3js.org/d3.v4.js"></script>
+<b>Compare two states</b>
+<select id="selectButton1"></select>
+<select id="selectButton2"></select>
+<div id="death_rate_plot"></div>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+```{r}
+library(r2d3)
+
+death_rate_df = covid19_merged_df %>%
+  select(date, state, tot_cases, tot_death) %>%
+  drop_na()
+
+death_rate_df$death_rate = death_rate_df$tot_death / death_rate_df$tot_cases
+
+US_cases_df$death_rate = US_cases_df$us_tot_death / US_cases_df$us_cases
+
+r2d3(data=death_rate_df, script = "./js/death_rate.js")
+```
+
+## Total cases in US (static)
+```{r}
+# Extract total cases of each states by month
+covid19_tot_cases = covid19_merged_df %>%
+                    select(date, state, tot_cases) %>%
+                    drop_na() %>%
+                    mutate(Date_month = month(date)) %>%
+                    group_by(Date_month, state) %>%
+                    summarise(all_total = max(tot_cases))
+
+covid19_tot_cases$Date_month = as.factor(covid19_tot_cases$Date_month)
+
+# Plot the latest confirmed cases in US by states
+plot_usmap(data = na.omit(covid19_tot_cases), values = "all_total", color = "red") + 
+  scale_fill_continuous(name = "Confirmed",low = "white", high = "red") + 
+  theme(legend.position = "right") +
+  ggtitle("Confirmed covid-19 cases") +
+  facet_wrap(~Date_month, ncol=3, drop=TRUE)
+```
+
+## Total cases in US (static statebins)
+```{r}
+library(statebins)
+# Extract the fisrt and last month for all states
+covid19_tot_cases = covid19_merged_df %>%
+                    select(date, state, tot_cases) %>%
+                    drop_na() %>%
+                    mutate(Date_month = month(date))
+covid19_tot_cases$state = as.character(covid19_tot_cases$state)
+
+statebins(covid19_tot_cases, value_col="tot_cases",
+          name = "Confirmed covid-19 cases", direction = 1) +
+  ggtitle("Confirmed covid-19 cases") +
+  theme_statebins() +
+  facet_wrap(~Date_month, ncol=3, drop=TRUE)
+
+```
+
+
+```{r}
+library(ggridges)
+```
+```{r}
+Covid19_selected_df =  read.csv("./data/Covid19_selected.csv")
+```
+
+```{r}
+Covid19_selected_df$Month <- format(as.Date(Covid19_selected_df$date), "%m")
+data <- Covid19_selected_df %>% select(Month, total_adult_patients_hospitalized_confirmed_covid, total_pediatric_patients_hospitalized_confirmed_covid)
+newdata <- na.omit(data)
+```
+```{r}
+data <- newdata %>% arrange(Month, total_adult_patients_hospitalized_confirmed_covid, total_pediatric_patients_hospitalized_confirmed_covid) %>% group_by(Month) %>% summarise(across(everything(), last))
+tidydata <- data %>% pivot_longer(cols = !Month, names_to = "stat", values_to = "number")
+tidydata
+```
+```{r}
+ggplot(tidydata, aes(fill=stat, y=number, x=Month)) + 
+    geom_bar(position="fill", stat="identity")
+```
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<b>Compare adult and padiatric</b>
+<select id="adult"></select>
+<select id="padiatric"></select>
+<div id="plot"></div>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+```{r}
+library(r2d3)
+r2d3(data=tidydata, script = "./js/death_rate.js")
+```
+```
+
+
+<!--chapter:end:05-results.Rmd-->
+
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+# Interactive component
+
+
+
+<!--chapter:end:06-interactive.Rmd-->
+
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+# Conclusion
+
+
+<!--chapter:end:07-conclusion.Rmd-->
+
