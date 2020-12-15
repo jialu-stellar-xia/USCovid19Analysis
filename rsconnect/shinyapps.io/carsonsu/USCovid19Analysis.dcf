@@ -1,0 +1,12 @@
+name: USCovid19Analysis
+title: USCovid19Analysis
+username:
+account: carsonsu
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3389478
+bundleId: 3976079
+url: https://carsonsu.shinyapps.io/USCovid19Analysis/
+when: 1607706408.39579
+asMultiple: FALSE
+asStatic: FALSE
