@@ -24,7 +24,7 @@
 <meta name="author" content="Haoxiong Su; Jialu Xia; Yifei Zhang" />
 
 
-<meta name="date" content="2020-12-06" />
+<meta name="date" content="2020-12-15" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -50,9 +50,13 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
 <link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.5.2/htmlwidgets.js"></script>
+<script src="libs/r2d3-render-0.1.0/r2d3-render.js"></script>
+<script src="libs/webcomponents-2.0.0/webcomponents.js"></script>
+<script src="libs/r2d3-binding-0.2.3/r2d3.js"></script>
+<script src="libs/d3v5-5.0.0/d3.min.js"></script>
 
 
 
@@ -83,7 +87,12 @@
 <li class="chapter" data-level="3.2" data-path="data-transformation.html"><a href="data-transformation.html#nationwide-data"><i class="fa fa-check"></i><b>3.2</b> Nationwide data</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
-<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
+<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a><ul>
+<li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#load-data"><i class="fa fa-check"></i><b>5.1</b> Load Data</a></li>
+<li class="chapter" data-level="5.2" data-path="results.html"><a href="results.html#compare-death-rates-between-two-states-in-us-d3"><i class="fa fa-check"></i><b>5.2</b> Compare death rates between two states in US (D3)</a></li>
+<li class="chapter" data-level="5.3" data-path="results.html"><a href="results.html#total-cases-in-us-static"><i class="fa fa-check"></i><b>5.3</b> Total cases in US (static)</a></li>
+<li class="chapter" data-level="5.4" data-path="results.html"><a href="results.html#total-cases-in-us-static-statebins"><i class="fa fa-check"></i><b>5.4</b> Total cases in US (static statebins)</a></li>
+</ul></li>
 <li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
 <li class="divider"></li>
@@ -121,7 +130,7 @@
 <pre><code>## [1] &quot;Covid-19 broke out among US at 2020-03-05.&quot;</code></pre>
 <ul>
 <li><p>There are many useless variables for our analysis. We would drop all redundant variables. Covid19_selected_df is the dateframe we would use in analysis.</p></li>
-<li><p>Data Dictionary</p>
+<li>Data Dictionary
 <ol style="list-style-type: decimal">
 <li>date: [chr] report date.</li>
 <li>state: [chr] The two digit state code.</li>

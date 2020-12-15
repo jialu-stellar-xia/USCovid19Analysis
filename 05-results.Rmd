@@ -6,58 +6,76 @@ library(ggplot2)
 
 library(shiny)
 library(r2d3)
+library(tidyverse)
+library(lubridate)
 ```
 
+## Load Data
 ```{r}
 covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
 covid19_merged_df$date = as.character(covid19_merged_df$date)
+covid19_merged_df$date = parse_date(covid19_merged_df$date, format = "%Y-%m-%d")
 
 US_cases_df$date = as.character(US_cases_df$date)
 US_cases_df$date = parse_date(US_cases_df$date,format = "%Y-%m-%d")
 ```
 
-## Total cases in US
-```{r}
-# Extract the latest data for all states
-latest_date = last(covid19_merged_df$date)
-latest_US_cases = covid19_merged_df[covid19_merged_df$date == latest_date, ]
+## Compare death rates between two states in US (D3)
+<script src="https://d3js.org/d3.v4.js"></script>
+<b>Compare two states</b>
+<select id="selectButton1"></select>
+<select id="selectButton2"></select>
+<div id="death_rate_plot"></div>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
-# Plot the latest confirmed cases in US by states
-plot_usmap(data = latest_US_cases, values = "tot_cases", color = "red") + 
-  scale_fill_continuous(name = "Confirmed covid-19 cases",low = "white", high = "red", label = scales::comma) + 
-  theme(legend.position = "right")
+```{r}
+library(r2d3)
+
+death_rate_df = covid19_merged_df %>%
+  select(date, state, tot_cases, tot_death) %>%
+  drop_na()
+
+death_rate_df$death_rate = death_rate_df$tot_death / death_rate_df$tot_cases
+
+US_cases_df$death_rate = US_cases_df$us_tot_death / US_cases_df$us_cases
+
+r2d3(data=death_rate_df, script = "./js/death_rate.js")
 ```
 
-## Total cases in US (interactive)
+## Total cases in US (static)
 ```{r}
-ui <- fluidPage(
-  dateRangeInput("Date",
-                 label = "Date range:",
-                 format = "yyyy-mm-dd", 
-                 min = "2020-03-05",
-                 max = "2020-11-15",
-                 start = "2020-03-05",
-                 separator="-"),
-  headerPanel("US covid-19 Confirmed Cases"),
-  mainPanel(plotOutput("Graph"))
-)
+# Extract total cases of each states by month
+covid19_tot_cases = covid19_merged_df %>%
+                    select(date, state, tot_cases) %>%
+                    drop_na() %>%
+                    mutate(Date_month = month(date)) %>%
+                    group_by(Date_month, state) %>%
+                    summarise(all_total = max(tot_cases))
 
-server <- function(input, output) {
-  
-  date_start <- reactive({input$Date})
-  
-  selected_US <- reactive({
-#        start_date = parse_date(input$Date[1],format = "%Y-%m-%d")
- #       end_date = parse_date(input$Date[2],format = "%Y-%m-%d")
-        filter(US_cases_df, between(date, input$Date[1], input$Date[2]))
-  })
-  
-  output$Graph <- renderPlot({
-        ggplot(data=selected_US(), aes(x=date, y=us_cases)) +
-                geom_line()
-  })
-  
-}
+covid19_tot_cases$Date_month = as.factor(covid19_tot_cases$Date_month)
 
-shinyApp(ui = ui, server = server)
+# Plot the latest confirmed cases in US by states
+plot_usmap(data = na.omit(covid19_tot_cases), values = "all_total", color = "red") + 
+  scale_fill_continuous(name = "Confirmed",low = "white", high = "red") + 
+  theme(legend.position = "right") +
+  ggtitle("Confirmed covid-19 cases") +
+  facet_wrap(~Date_month, ncol=3, drop=TRUE)
+```
+
+## Total cases in US (static statebins)
+```{r}
+library(statebins)
+# Extract the fisrt and last month for all states
+covid19_tot_cases = covid19_merged_df %>%
+                    select(date, state, tot_cases) %>%
+                    drop_na() %>%
+                    mutate(Date_month = month(date))
+covid19_tot_cases$state = as.character(covid19_tot_cases$state)
+
+statebins(covid19_tot_cases, value_col="tot_cases",
+          name = "Confirmed covid-19 cases", direction = 1) +
+  ggtitle("Confirmed covid-19 cases") +
+  theme_statebins() +
+  facet_wrap(~Date_month, ncol=3, drop=TRUE)
+
 ```
