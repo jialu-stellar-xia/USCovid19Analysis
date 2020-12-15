@@ -24,7 +24,7 @@
 <meta name="author" content="Haoxiong Su; Jialu Xia; Yifei Zhang" />
 
 
-<meta name="date" content="2020-12-15" />
+<meta name="date" content="2020-12-16" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -53,6 +53,8 @@
 <link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
 <script src="libs/htmlwidgets-1.5.2/htmlwidgets.js"></script>
+<link href="libs/parallel-coordinates-2.1.8/parcoords.css" rel="stylesheet" />
+<script src="libs/parcoords-binding-1.0.0/parcoords.js"></script>
 <script src="libs/r2d3-render-0.1.0/r2d3-render.js"></script>
 <script src="libs/webcomponents-2.0.0/webcomponents.js"></script>
 <script src="libs/r2d3-binding-0.2.3/r2d3.js"></script>
@@ -88,12 +90,17 @@
 </ul></li>
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
 <li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a><ul>
-<li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#load-data"><i class="fa fa-check"></i><b>5.1</b> Load Data</a></li>
-<li class="chapter" data-level="5.2" data-path="results.html"><a href="results.html#compare-death-rates-between-two-states-in-us-d3"><i class="fa fa-check"></i><b>5.2</b> Compare death rates between two states in US (D3)</a></li>
-<li class="chapter" data-level="5.3" data-path="results.html"><a href="results.html#total-cases-in-us-static"><i class="fa fa-check"></i><b>5.3</b> Total cases in US (static)</a></li>
-<li class="chapter" data-level="5.4" data-path="results.html"><a href="results.html#total-cases-in-us-static-statebins"><i class="fa fa-check"></i><b>5.4</b> Total cases in US (static statebins)</a></li>
+<li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#parallel-coordinates-plot-for-total-cases"><i class="fa fa-check"></i><b>5.1</b> Parallel coordinates plot for total cases</a></li>
+<li class="chapter" data-level="5.2" data-path="results.html"><a href="results.html#pie-chart-for-inpatient-beds-utilization"><i class="fa fa-check"></i><b>5.2</b> Pie chart for inpatient beds utilization</a></li>
+<li class="chapter" data-level="5.3" data-path="results.html"><a href="results.html#cleveland-dot-plot-for-inpatient-bed-availability"><i class="fa fa-check"></i><b>5.3</b> Cleveland dot plot for inpatient bed availability</a></li>
+<li class="chapter" data-level="5.4" data-path="results.html"><a href="results.html#heatmap-for-death-rate-and-bed-availability"><i class="fa fa-check"></i><b>5.4</b> Heatmap for death rate and bed availability</a></li>
+<li class="chapter" data-level="5.5" data-path="results.html"><a href="results.html#death-rate-and-hospital-admission-rate-us"><i class="fa fa-check"></i><b>5.5</b> Death rate and hospital admission rate (US)</a></li>
+<li class="chapter" data-level="5.6" data-path="results.html"><a href="results.html#load-data"><i class="fa fa-check"></i><b>5.6</b> Load Data</a></li>
+<li class="chapter" data-level="5.7" data-path="results.html"><a href="results.html#total-cases-in-us-static"><i class="fa fa-check"></i><b>5.7</b> Total cases in US (static)</a></li>
 </ul></li>
-<li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
+<li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a><ul>
+<li class="chapter" data-level="6.1" data-path="interactive-component.html"><a href="interactive-component.html#compare-death-rates-between-two-states-in-us-d3"><i class="fa fa-check"></i><b>6.1</b> Compare death rates between two states in US (D3)</a></li>
+</ul></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -117,7 +124,7 @@
 <div id="header">
 <h1 class="title">USCovid19Analysis</h1>
 <p class="author"><em>Haoxiong Su; Jialu Xia; Yifei Zhang</em></p>
-<p class="date"><em>2020-12-15</em></p>
+<p class="date"><em>2020-12-16</em></p>
 </div>
 <div id="introduction" class="section level1">
 <h1><span class="header-section-number">Chapter 1</span> Introduction</h1>

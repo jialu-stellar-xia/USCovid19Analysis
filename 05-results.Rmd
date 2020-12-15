@@ -4,7 +4,6 @@ editor_options:
   chunk_output_type: console
 ---
 # Results
-
 ```{r}
 library(tidyverse)
 Covid_19<-read.csv("data/Covid19_selected.csv")
@@ -152,47 +151,23 @@ dh_tidydata %>% ggplot(aes(x=as.Date(date),y=rate)) +
 ```
 
 
-
-
+```{r}
 library(usmap)
 library(ggplot2)
 
 library(shiny)
-library(r2d3)
 library(tidyverse)
 library(lubridate)
 ```
 
-## Load Data
 ```{r}
 covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
 covid19_merged_df$date = as.character(covid19_merged_df$date)
 covid19_merged_df$date = parse_date(covid19_merged_df$date, format = "%Y-%m-%d")
 
-US_cases_df$date = as.character(US_cases_df$date)
-US_cases_df$date = parse_date(US_cases_df$date,format = "%Y-%m-%d")
-```
-
-## Compare death rates between two states in US (D3)
-<script src="https://d3js.org/d3.v4.js"></script>
-<b>Compare two states</b>
-<select id="selectButton1"></select>
-<select id="selectButton2"></select>
-<div id="death_rate_plot"></div>
-<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-
-```{r}
-library(r2d3)
-
-death_rate_df = covid19_merged_df %>%
-  select(date, state, tot_cases, tot_death) %>%
-  drop_na()
-
-death_rate_df$death_rate = death_rate_df$tot_death / death_rate_df$tot_cases
-
-US_cases_df$death_rate = US_cases_df$us_tot_death / US_cases_df$us_cases
-
-r2d3(data=death_rate_df, script = "./js/death_rate.js")
+US_cases_df = read.csv("./data/US_cases.csv")
+US_cases_df$submission_date = as.character(US_cases_df$submission_date)
+US_cases_df$submission_date = parse_date(US_cases_df$submission_date,format = "%Y-%m-%d")
 ```
 
 ## Total cases in US (static)
@@ -214,25 +189,6 @@ plot_usmap(data = na.omit(covid19_tot_cases), values = "all_total", color = "red
   ggtitle("Confirmed covid-19 cases") +
   facet_wrap(~Date_month, ncol=3, drop=TRUE)
 ```
-
-## Total cases in US (static statebins)
-```{r}
-library(statebins)
-# Extract the fisrt and last month for all states
-covid19_tot_cases = covid19_merged_df %>%
-                    select(date, state, tot_cases) %>%
-                    drop_na() %>%
-                    mutate(Date_month = month(date))
-covid19_tot_cases$state = as.character(covid19_tot_cases$state)
-
-statebins(covid19_tot_cases, value_col="tot_cases",
-          name = "Confirmed covid-19 cases", direction = 1) +
-  ggtitle("Confirmed covid-19 cases") +
-  theme_statebins() +
-  facet_wrap(~Date_month, ncol=3, drop=TRUE)
-
-```
-
 
 ```{r}
 library(ggridges)
