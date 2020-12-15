@@ -24,7 +24,7 @@
 <meta name="author" content="Haoxiong Su; Jialu Xia; Yifei Zhang" />
 
 
-<meta name="date" content="2020-12-06" />
+<meta name="date" content="2020-12-15" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -53,6 +53,11 @@
 <script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
 <link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.5.2/htmlwidgets.js"></script>
+<script src="libs/r2d3-render-0.1.0/r2d3-render.js"></script>
+<script src="libs/webcomponents-2.0.0/webcomponents.js"></script>
+<script src="libs/r2d3-binding-0.2.3/r2d3.js"></script>
+<script src="libs/d3v5-5.0.0/d3.min.js"></script>
 
 
 
@@ -83,7 +88,12 @@
 <li class="chapter" data-level="3.2" data-path="data-transformation.html"><a href="data-transformation.html#nationwide-data"><i class="fa fa-check"></i><b>3.2</b> Nationwide data</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
-<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
+<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a><ul>
+<li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#load-data"><i class="fa fa-check"></i><b>5.1</b> Load Data</a></li>
+<li class="chapter" data-level="5.2" data-path="results.html"><a href="results.html#compare-death-rates-between-two-states-in-us-d3"><i class="fa fa-check"></i><b>5.2</b> Compare death rates between two states in US (D3)</a></li>
+<li class="chapter" data-level="5.3" data-path="results.html"><a href="results.html#total-cases-in-us-static"><i class="fa fa-check"></i><b>5.3</b> Total cases in US (static)</a></li>
+<li class="chapter" data-level="5.4" data-path="results.html"><a href="results.html#total-cases-in-us-static-statebins"><i class="fa fa-check"></i><b>5.4</b> Total cases in US (static statebins)</a></li>
+</ul></li>
 <li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
 <li class="divider"></li>
@@ -114,7 +124,11 @@
 <h3><span class="header-section-number">3.1.1</span> Increase in covid-19 cases</h3>
 <ul>
 <li><p>The relationship between the covid-19 cases and hospital utilization might be highly related. We are interested in how many of the suspected/confirmed cases are in each state. Therefore, we would transform the counts of newly increased cases into the percentage of admitted covid-19 cases among the total cases in each state.</p></li>
+<<<<<<< Updated upstream
 <li><p>Raw values:</p></li>
+=======
+<li>Raw values:</li>
+>>>>>>> Stashed changes
 </ul>
 <ol style="list-style-type: decimal">
 <li>tot_cases: [int]</li>
@@ -135,7 +149,11 @@
 <h3><span class="header-section-number">3.1.2</span> Inpatient Bed Occupation</h3>
 <ul>
 <li><p>Some real numbers of counting need to be trasformed into the percentage for the use of studying the trends. For example, the number of inpatiend beds used for covid-19 will be transformed into the percetage in order to see if the inpatiend beds of the hospitals are overloaded due to covid-19.</p></li>
+<<<<<<< Updated upstream
 <li><p>Raw values:</p></li>
+=======
+<li>Raw values:</li>
+>>>>>>> Stashed changes
 </ul>
 <ol style="list-style-type: decimal">
 <li>inpatient_beds: [int]</li>
@@ -154,9 +172,15 @@
 <h3><span class="header-section-number">3.1.3</span> Previous Day Confirmed/Suspected Case for Adult &amp; Pediatric</h3>
 <ul>
 <li><p>To study the differences between the impact on the adults and pediatrics from covid-19, we will split the data into two groups and study the changes of suspected/confirmed cases respectively in both groups. The impact of covid-19 on two groups might be different in different states so the average changes of two groups in US will be taken as the baseline to compare with the one of each state as well.</p></li>
+<<<<<<< Updated upstream
 <li><p>Raw values:
 Adult:<br />
 </p></li>
+=======
+<li>Raw values:
+Adult:<br />
+</li>
+>>>>>>> Stashed changes
 </ul>
 <ol style="list-style-type: decimal">
 <li>previous_day_admission_adult_covid_confirmed: [int]</li>

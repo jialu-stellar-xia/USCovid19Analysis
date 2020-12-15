@@ -13,6 +13,10 @@ Hospital_Utilization<-read.csv("data/reported_hospital_utilization_timeseries_20
 * Cases_and_Deaths has 18000 observations by 60 States from 2020-01-22 to 2020-11-16. Hospital_Utilization has 14003 observations by 53 States from 2020-01-01 to 2020-11-15.
 ```{r}
 library(tidyverse)
+<<<<<<< Updated upstream
+=======
+Cases_and_Deaths$submission_date = as.character(Cases_and_Deaths$submission_date)
+>>>>>>> Stashed changes
 Cases_and_Deaths$submission_date<-parse_date(Cases_and_Deaths$submission_date,format = "%m/%d/%Y")
 
 print(paste0("Number of States in Cases_and_Deaths is ",length(unique(Cases_and_Deaths$state)),"."))
