@@ -232,3 +232,40 @@ statebins(covid19_tot_cases, value_col="tot_cases",
   facet_wrap(~Date_month, ncol=3, drop=TRUE)
 
 ```
+
+
+```{r}
+library(ggridges)
+```
+```{r}
+Covid19_selected_df =  read.csv("./data/Covid19_selected.csv")
+```
+
+```{r}
+Covid19_selected_df$Month <- format(as.Date(Covid19_selected_df$date), "%m")
+data <- Covid19_selected_df %>% select(Month, total_adult_patients_hospitalized_confirmed_covid, total_pediatric_patients_hospitalized_confirmed_covid)
+newdata <- na.omit(data)
+```
+```{r}
+data <- newdata %>% arrange(Month, total_adult_patients_hospitalized_confirmed_covid, total_pediatric_patients_hospitalized_confirmed_covid) %>% group_by(Month) %>% summarise(across(everything(), last))
+tidydata <- data %>% pivot_longer(cols = !Month, names_to = "stat", values_to = "number")
+tidydata
+```
+```{r}
+ggplot(tidydata, aes(fill=stat, y=number, x=Month)) + 
+    geom_bar(position="fill", stat="identity")
+```
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<b>Compare adult and padiatric</b>
+<select id="adult"></select>
+<select id="padiatric"></select>
+<div id="plot"></div>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+```{r}
+library(r2d3)
+r2d3(data=tidydata, script = "./js/death_rate.js")
+```
+```
+
