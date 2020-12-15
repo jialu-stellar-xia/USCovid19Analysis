@@ -256,16 +256,5 @@ ggplot(tidydata, aes(fill=stat, y=number, x=Month)) +
     geom_bar(position="fill", stat="identity")
 ```
 
-<script src="https://d3js.org/d3.v4.js"></script>
-<b>Compare adult and padiatric</b>
-<select id="adult"></select>
-<select id="padiatric"></select>
-<div id="plot"></div>
-<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
-```{r}
-library(r2d3)
-r2d3(data=tidydata, script = "./js/death_rate.js")
-```
-```
 
