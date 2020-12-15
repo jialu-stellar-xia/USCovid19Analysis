@@ -1,3 +1,28 @@
 # Interactive component
 
+## Compare death rates between two states in US (D3)
+<script src="https://d3js.org/d3.v4.js"></script>
+<b>Compare two states</b>
+<select id="selectButton1"></select>
+<select id="selectButton2"></select>
+<div id="death_rate_plot"></div>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+```{r}
+library(r2d3)
+library(dplyr)
+
+covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
+covid19_merged_df$date = as.character(covid19_merged_df$date)
+covid19_merged_df$date = parse_date(covid19_merged_df$date, format = "%Y-%m-%d")
+
+death_rate_df = covid19_merged_df %>%
+  select(date, state, tot_cases, tot_death) %>%
+  drop_na()
+
+death_rate_df$death_rate = death_rate_df$tot_death / death_rate_df$tot_cases
+
+r2d3(data=death_rate_df, script = "./js/death_rate.js")
+```
+
 

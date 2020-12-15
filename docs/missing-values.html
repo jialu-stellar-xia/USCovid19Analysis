@@ -24,7 +24,7 @@
 <meta name="author" content="Haoxiong Su; Jialu Xia; Yifei Zhang" />
 
 
-<meta name="date" content="2020-12-15" />
+<meta name="date" content="2020-12-16" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -53,6 +53,8 @@
 <link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
 <script src="libs/htmlwidgets-1.5.2/htmlwidgets.js"></script>
+<link href="libs/parallel-coordinates-2.1.8/parcoords.css" rel="stylesheet" />
+<script src="libs/parcoords-binding-1.0.0/parcoords.js"></script>
 <script src="libs/r2d3-render-0.1.0/r2d3-render.js"></script>
 <script src="libs/webcomponents-2.0.0/webcomponents.js"></script>
 <script src="libs/r2d3-binding-0.2.3/r2d3.js"></script>
@@ -93,8 +95,12 @@
 <li class="chapter" data-level="5.3" data-path="results.html"><a href="results.html#cleveland-dot-plot-for-inpatient-bed-availability"><i class="fa fa-check"></i><b>5.3</b> Cleveland dot plot for inpatient bed availability</a></li>
 <li class="chapter" data-level="5.4" data-path="results.html"><a href="results.html#heatmap-for-death-rate-and-bed-availability"><i class="fa fa-check"></i><b>5.4</b> Heatmap for death rate and bed availability</a></li>
 <li class="chapter" data-level="5.5" data-path="results.html"><a href="results.html#death-rate-and-hospital-admission-rate-us"><i class="fa fa-check"></i><b>5.5</b> Death rate and hospital admission rate (US)</a></li>
+<li class="chapter" data-level="5.6" data-path="results.html"><a href="results.html#load-data"><i class="fa fa-check"></i><b>5.6</b> Load Data</a></li>
+<li class="chapter" data-level="5.7" data-path="results.html"><a href="results.html#total-cases-in-us-static"><i class="fa fa-check"></i><b>5.7</b> Total cases in US (static)</a></li>
 </ul></li>
-<li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
+<li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a><ul>
+<li class="chapter" data-level="6.1" data-path="interactive-component.html"><a href="interactive-component.html#compare-death-rates-between-two-states-in-us-d3"><i class="fa fa-check"></i><b>6.1</b> Compare death rates between two states in US (D3)</a></li>
+</ul></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -118,69 +124,41 @@
 <div id="missing-values" class="section level1">
 <h1><span class="header-section-number">Chapter 4</span> Missing values</h1>
 <p>First we can have a quick review of our dataset, we can see clearly that their are many missing values (NA entries) in our dataframe.</p>
-<pre><code>##                                                                   X 
-##                                                                   0 
-##                                                                date 
-##                                                                   0 
-##                                                               state 
-##                                                                   0 
-##                                                           tot_cases 
-##                                                                   0 
-##                                                            new_case 
-##                                                                   0 
-##                                                           tot_death 
-##                                                                   0 
-##                                                           new_death 
-##                                                                   0 
-##                                                hospital_onset_covid 
-##                                                                 276 
-##                                                      inpatient_beds 
-##                                                                 201 
-##                                                 inpatient_beds_used 
-##                                                                 275 
-##                                           inpatient_beds_used_covid 
-##                                                                 210 
-##                        previous_day_admission_adult_covid_confirmed 
-##                                                                6073 
-##                        previous_day_admission_adult_covid_suspected 
-##                                                                6214 
-##                    previous_day_admission_pediatric_covid_confirmed 
-##                                                                6478 
-##                    previous_day_admission_pediatric_covid_suspected 
-##                                                                6474 
-##                                     staffed_adult_icu_bed_occupancy 
-##                                                                6485 
-##            staffed_icu_adult_patients_confirmed_and_suspected_covid 
-##                                                                6411 
-##                          staffed_icu_adult_patients_confirmed_covid 
-##                                                                6261 
-##     total_adult_patients_hospitalized_confirmed_and_suspected_covid 
-##                                                                5936 
-##                   total_adult_patients_hospitalized_confirmed_covid 
-##                                                                5811 
-## total_pediatric_patients_hospitalized_confirmed_and_suspected_covid 
-##                                                                6476 
-##               total_pediatric_patients_hospitalized_confirmed_covid 
-##                                                                6476 
-##                                        total_staffed_adult_icu_beds 
-##                                                                6333 
-##                                          inpatient_beds_utilization 
-##                                                                 275 
-##                                    percent_of_inpatients_with_covid 
-##                                                                 298 
-##                                     inpatient_bed_covid_utilization 
-##                                                                 275 
-##                                     adult_icu_bed_covid_utilization 
-##                                                                6644 
-##                                           adult_icu_bed_utilization 
-##                                                                6637</code></pre>
+<pre><code>##                                                                   X                                                                date 
+##                                                                   0                                                                   0 
+##                                                               state                                                           tot_cases 
+##                                                                   0                                                                   0 
+##                                                            new_case                                                           tot_death 
+##                                                                   0                                                                   0 
+##                                                           new_death                                                hospital_onset_covid 
+##                                                                   0                                                                 276 
+##                                                      inpatient_beds                                                 inpatient_beds_used 
+##                                                                 201                                                                 275 
+##                                           inpatient_beds_used_covid                        previous_day_admission_adult_covid_confirmed 
+##                                                                 210                                                                6073 
+##                        previous_day_admission_adult_covid_suspected                    previous_day_admission_pediatric_covid_confirmed 
+##                                                                6214                                                                6478 
+##                    previous_day_admission_pediatric_covid_suspected                                     staffed_adult_icu_bed_occupancy 
+##                                                                6474                                                                6485 
+##            staffed_icu_adult_patients_confirmed_and_suspected_covid                          staffed_icu_adult_patients_confirmed_covid 
+##                                                                6411                                                                6261 
+##     total_adult_patients_hospitalized_confirmed_and_suspected_covid                   total_adult_patients_hospitalized_confirmed_covid 
+##                                                                5936                                                                5811 
+## total_pediatric_patients_hospitalized_confirmed_and_suspected_covid               total_pediatric_patients_hospitalized_confirmed_covid 
+##                                                                6476                                                                6476 
+##                                        total_staffed_adult_icu_beds                                          inpatient_beds_utilization 
+##                                                                6333                                                                 275 
+##                                    percent_of_inpatients_with_covid                                     inpatient_bed_covid_utilization 
+##                                                                 298                                                                 275 
+##                                     adult_icu_bed_covid_utilization                                           adult_icu_bed_utilization 
+##                                                                6644                                                                6637</code></pre>
 <p>A lot of columns have more than 5,000 missing values.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+<p><img src="finalproj_files/figure-html/unnamed-chunk-21-1.png" width="672" />
 This plot provides a specific visualiation of the amount of missing data, showing in black the location of missing values, and also providing information on the overall percentage of missing values overall (in the legend), and in each variable.</p>
 <p>From this Most of missing values do not show by random, but they have patterns.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
 <p>An upset plot from the UpSetR package can be used to visualise the patterns of missingness, or rather the combinations of missingness across cases. To see combinations of missingness and intersections of missingness amongst variables, use the gg_miss_upset function:</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+<p><img src="finalproj_files/figure-html/unnamed-chunk-23-1.png" width="672" />
 6467 cases that those five columns have missing value together
 152 adult_icu_bed_occupancy and adult_icu_bed_covid_utilization_NA</p>
 
