@@ -16,13 +16,19 @@ covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
 covid19_merged_df$date = as.character(covid19_merged_df$date)
 covid19_merged_df$date = parse_date(covid19_merged_df$date, format = "%Y-%m-%d")
 
+US_death_rate<-covid19_merged_df %>% 
+  group_by(date) %>% 
+  summarise(death_rate = sum(tot_death)/sum(tot_cases)) %>%
+  mutate(state = "Entire US")
+
 death_rate_df = covid19_merged_df %>%
-  select(date, state, tot_cases, tot_death) %>%
+  mutate(death_rate = tot_death/tot_cases) %>%
+  select(date, state, death_rate) %>%
   drop_na()
 
-death_rate_df$death_rate = death_rate_df$tot_death / death_rate_df$tot_cases
+all_death_rate_df = rbind(death_rate_df, US_death_rate)
 
-r2d3(data=death_rate_df, script = "./js/death_rate.js")
+r2d3(data=all_death_rate_df, script = "./js/death_rate.js")
 ```
 
-The interactive plot provides us with the funtionality to compare the trends of covid-19 total cases in two states. Since the number of states in US is large, it is hard to make comparisons between the trends of two states within fifty lines on the plot. Therefore, the interactive plot enables the user to choose two of the fifty states in US and plot the corresponding lines of total cases along with time, which could help the user understand the trends of differents states.
+The interactive plot provides us with the funtionality to compare the trends of covid-19 total cases of two states or entire US. Since the number of states in US is large, it is hard to make comparisons between the trends of two states within fifty lines on the plot. Therefore, the interactive plot enables the user to choose two of the fifty states in US and plot the corresponding lines of total cases along with time, which could help the user understand the trends of differents states and US.
