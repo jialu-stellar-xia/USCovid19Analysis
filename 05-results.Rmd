@@ -181,6 +181,9 @@ pie_data<-Covid_19 %>%
   mutate(inpatient_beds_empty=inpatient_beds-inpatient_beds_used,inpatient_beds_used_others=inpatient_beds_used-inpatient_beds_used_covid) %>% 
   select(date,state,inpatient_beds_empty,inpatient_beds_used_covid,inpatient_beds_used_others)
 ```
+
+## Trend of Covid-19 in US
+```{r}
 covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
 covid19_merged_df$date = as.character(covid19_merged_df$date)
 covid19_merged_df$date = parse_date(covid19_merged_df$date, format = "%Y-%m-%d")
@@ -190,7 +193,6 @@ US_cases_df$submission_date = as.character(US_cases_df$submission_date)
 US_cases_df$submission_date = parse_date(US_cases_df$submission_date,format = "%Y-%m-%d")
 ```
 
-## Trend of Covid-19 in US
 ### Total cases
 ```{r}
 # Extract total cases of each states by month
