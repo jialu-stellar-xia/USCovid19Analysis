@@ -10,6 +10,7 @@ missing-values
 results
 how-does-covid19-spread-by-states-over-time
 total-cases-in-us
+new-cases-in-us
 monthly-total-cases-in-thousands-by-states
 new-case-total-case-by-states
 how-does-medical-resources-affect-covid19-death-rate
@@ -17,9 +18,6 @@ death-rate-and-hospital-admission-rate
 death-rate-and-inpatient-bed-availability
 death-rate-and-inpatient-beds-availability-by-states
 pie-chart-for-inpatient-beds-utilization
-trend-of-covid-19-in-us
-total-cases
-new-cases
 comparison-between-adult-and-pediatric-patient-over-time
 does-covid19-impact-differently-on-adult-and-pediatric-patient
 comparison-between-adult-and-pediatric-patient-over-time-1

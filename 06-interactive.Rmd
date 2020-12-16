@@ -2,7 +2,7 @@
 
 ## Compare death rates between two states in US (D3)
 <script src="https://d3js.org/d3.v6.js"></script>
-<b>Compare two states</b>
+<b>Compare death rates of two states</b>
 <select id="selectButton1"></select>
 <select id="selectButton2"></select>
 <div id="death_rate_plot"></div>
