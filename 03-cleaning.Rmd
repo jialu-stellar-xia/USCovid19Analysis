@@ -97,7 +97,9 @@ perccentage_df = data.frame(
   previous_day_admission_pediatric_covid_confirmed_P = previous_day_admission_pediatric_covid_confirmed_P,
   previous_day_admission_pediatric_covid_suspected_P = previous_day_admission_pediatric_covid_suspected_P
 )
-head(perccentage_df)
+
+library(knitr)
+kable(head(perccentage_df))
 ```
 
 ## Nationwide data

@@ -7,6 +7,8 @@ inpatient-bed-occupation
 previous-day-confirmedsuspected-case-for-adult-pediatric
 nationwide-data
 missing-values
+number-of-missing-values-for-each-variable
+patterns-of-missing-values
 results
 how-does-covid19-spread-by-states-over-time
 total-cases-in-us

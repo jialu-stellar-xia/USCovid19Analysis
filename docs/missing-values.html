@@ -88,7 +88,10 @@
 </ul></li>
 <li class="chapter" data-level="3.2" data-path="data-transformation.html"><a href="data-transformation.html#nationwide-data"><i class="fa fa-check"></i><b>3.2</b> Nationwide data</a></li>
 </ul></li>
-<li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
+<li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a><ul>
+<li class="chapter" data-level="4.1" data-path="missing-values.html"><a href="missing-values.html#number-of-missing-values-for-each-variable"><i class="fa fa-check"></i><b>4.1</b> Number of Missing values for each variable</a></li>
+<li class="chapter" data-level="4.2" data-path="missing-values.html"><a href="missing-values.html#patterns-of-missing-values"><i class="fa fa-check"></i><b>4.2</b> Patterns of Missing values</a></li>
+</ul></li>
 <li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a><ul>
 <li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#how-does-covid19-spread-by-states-over-time"><i class="fa fa-check"></i><b>5.1</b> How does Covid19 spread by States over time?</a><ul>
 <li class="chapter" data-level="5.1.1" data-path="results.html"><a href="results.html#total-cases-in-us"><i class="fa fa-check"></i><b>5.1.1</b> Total cases in US</a></li>
@@ -134,44 +137,144 @@
 <div id="missing-values" class="section level1">
 <h1><span class="header-section-number">Chapter 4</span> Missing values</h1>
 <p>First we can have a quick review of our dataset, we can see clearly that their are many missing values (NA entries) in our dataframe.</p>
-<pre><code>##                                                                   X                                                                date 
-##                                                                   0                                                                   0 
-##                                                               state                                                           tot_cases 
-##                                                                   0                                                                   0 
-##                                                            new_case                                                           tot_death 
-##                                                                   0                                                                   0 
-##                                                           new_death                                                hospital_onset_covid 
-##                                                                   0                                                                 276 
-##                                                      inpatient_beds                                                 inpatient_beds_used 
-##                                                                 201                                                                 275 
-##                                           inpatient_beds_used_covid                        previous_day_admission_adult_covid_confirmed 
-##                                                                 210                                                                6073 
-##                        previous_day_admission_adult_covid_suspected                    previous_day_admission_pediatric_covid_confirmed 
-##                                                                6214                                                                6478 
-##                    previous_day_admission_pediatric_covid_suspected                                     staffed_adult_icu_bed_occupancy 
-##                                                                6474                                                                6485 
-##            staffed_icu_adult_patients_confirmed_and_suspected_covid                          staffed_icu_adult_patients_confirmed_covid 
-##                                                                6411                                                                6261 
-##     total_adult_patients_hospitalized_confirmed_and_suspected_covid                   total_adult_patients_hospitalized_confirmed_covid 
-##                                                                5936                                                                5811 
-## total_pediatric_patients_hospitalized_confirmed_and_suspected_covid               total_pediatric_patients_hospitalized_confirmed_covid 
-##                                                                6476                                                                6476 
-##                                        total_staffed_adult_icu_beds                                          inpatient_beds_utilization 
-##                                                                6333                                                                 275 
-##                                    percent_of_inpatients_with_covid                                     inpatient_bed_covid_utilization 
-##                                                                 298                                                                 275 
-##                                     adult_icu_bed_covid_utilization                                           adult_icu_bed_utilization 
-##                                                                6644                                                                6637</code></pre>
-<p>A lot of columns have more than 5,000 missing values.</p>
+<div id="number-of-missing-values-for-each-variable" class="section level2">
+<h2><span class="header-section-number">4.1</span> Number of Missing values for each variable</h2>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>X</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>date</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>state</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>tot_cases</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>new_case</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>tot_death</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>new_death</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>hospital_onset_covid</td>
+<td align="right">276</td>
+</tr>
+<tr class="odd">
+<td>inpatient_beds</td>
+<td align="right">201</td>
+</tr>
+<tr class="even">
+<td>inpatient_beds_used</td>
+<td align="right">275</td>
+</tr>
+<tr class="odd">
+<td>inpatient_beds_used_covid</td>
+<td align="right">210</td>
+</tr>
+<tr class="even">
+<td>previous_day_admission_adult_covid_confirmed</td>
+<td align="right">6073</td>
+</tr>
+<tr class="odd">
+<td>previous_day_admission_adult_covid_suspected</td>
+<td align="right">6214</td>
+</tr>
+<tr class="even">
+<td>previous_day_admission_pediatric_covid_confirmed</td>
+<td align="right">6478</td>
+</tr>
+<tr class="odd">
+<td>previous_day_admission_pediatric_covid_suspected</td>
+<td align="right">6474</td>
+</tr>
+<tr class="even">
+<td>staffed_adult_icu_bed_occupancy</td>
+<td align="right">6485</td>
+</tr>
+<tr class="odd">
+<td>staffed_icu_adult_patients_confirmed_and_suspected_covid</td>
+<td align="right">6411</td>
+</tr>
+<tr class="even">
+<td>staffed_icu_adult_patients_confirmed_covid</td>
+<td align="right">6261</td>
+</tr>
+<tr class="odd">
+<td>total_adult_patients_hospitalized_confirmed_and_suspected_covid</td>
+<td align="right">5936</td>
+</tr>
+<tr class="even">
+<td>total_adult_patients_hospitalized_confirmed_covid</td>
+<td align="right">5811</td>
+</tr>
+<tr class="odd">
+<td>total_pediatric_patients_hospitalized_confirmed_and_suspected_covid</td>
+<td align="right">6476</td>
+</tr>
+<tr class="even">
+<td>total_pediatric_patients_hospitalized_confirmed_covid</td>
+<td align="right">6476</td>
+</tr>
+<tr class="odd">
+<td>total_staffed_adult_icu_beds</td>
+<td align="right">6333</td>
+</tr>
+<tr class="even">
+<td>inpatient_beds_utilization</td>
+<td align="right">275</td>
+</tr>
+<tr class="odd">
+<td>percent_of_inpatients_with_covid</td>
+<td align="right">298</td>
+</tr>
+<tr class="even">
+<td>inpatient_bed_covid_utilization</td>
+<td align="right">275</td>
+</tr>
+<tr class="odd">
+<td>adult_icu_bed_covid_utilization</td>
+<td align="right">6644</td>
+</tr>
+<tr class="even">
+<td>adult_icu_bed_utilization</td>
+<td align="right">6637</td>
+</tr>
+</tbody>
+</table>
+<p>14 columns have more than 5,000 missing values.</p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p>This plot provides a specific visualiation of the amount of missing data, showing in black the location of missing values, and also providing information on the overall percentage of missing values overall (in the legend), and in each variable.</p>
+</div>
+<div id="patterns-of-missing-values" class="section level2">
+<h2><span class="header-section-number">4.2</span> Patterns of Missing values</h2>
 <p><img src="finalproj_files/figure-html/unnamed-chunk-20-1.png" width="672" />
-This plot provides a specific visualiation of the amount of missing data, showing in black the location of missing values, and also providing information on the overall percentage of missing values overall (in the legend), and in each variable.</p>
-<p>From this Most of missing values do not show by random, but they have patterns.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
-<p>An upset plot from the UpSetR package can be used to visualise the patterns of missingness, or rather the combinations of missingness across cases. To see combinations of missingness and intersections of missingness amongst variables, use the gg_miss_upset function:</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-22-1.png" width="672" />
-6467 cases that those five columns have missing value together
-152 adult_icu_bed_occupancy and adult_icu_bed_covid_utilization_NA</p>
+From the plot above, most of missing values do not show by random, but they have patterns.</p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-21-1.png" width="672" />
+An upset plot from the UpSetR package can be used to visualise the patterns of missingness, or rather the combinations of missingness across cases. To see combinations of missingness and intersections of missingness amongst variables, use the gg_miss_upset function:<br />
+6467 cases missing those five columns together;<br />
+152 cases missing adult_icu_bed_occupancy and adult_icu_bed_covid_utilization_NA.</p>
 
+</div>
 </div>
             </section>
 

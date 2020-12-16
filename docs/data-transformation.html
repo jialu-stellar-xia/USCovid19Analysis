@@ -88,7 +88,10 @@
 </ul></li>
 <li class="chapter" data-level="3.2" data-path="data-transformation.html"><a href="data-transformation.html#nationwide-data"><i class="fa fa-check"></i><b>3.2</b> Nationwide data</a></li>
 </ul></li>
-<li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
+<li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a><ul>
+<li class="chapter" data-level="4.1" data-path="missing-values.html"><a href="missing-values.html#number-of-missing-values-for-each-variable"><i class="fa fa-check"></i><b>4.1</b> Number of Missing values for each variable</a></li>
+<li class="chapter" data-level="4.2" data-path="missing-values.html"><a href="missing-values.html#patterns-of-missing-values"><i class="fa fa-check"></i><b>4.2</b> Patterns of Missing values</a></li>
+</ul></li>
 <li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a><ul>
 <li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#how-does-covid19-spread-by-states-over-time"><i class="fa fa-check"></i><b>5.1</b> How does Covid19 spread by States over time?</a><ul>
 <li class="chapter" data-level="5.1.1" data-path="results.html"><a href="results.html#total-cases-in-us"><i class="fa fa-check"></i><b>5.1.1</b> Total cases in US</a></li>
@@ -204,27 +207,117 @@ Adult:</li>
 1) previous_day_admission_pediatric_covid_cases: [int] previous_day_admission_pediatric_covid_confirmed + previous_day_admission_pediatric_covid_suspected
 2) previous_day_admission_pediatric_covid_confirmed_P: [float] previous_day_admission_pediatric_covid_confirmed / previous_day_admission_pediatric_covid_cases
 3) previous_day_admission_pediatric_covid_suspected_P: [float] previous_day_admission_pediatric_covid_suspected / previous_day_admission_pediatric_covid_cases</p>
-<pre><code>##         date state new_case_P tot_death_P new_death_P inpatient_beds_used_P inpatient_beds_used_covid_P previous_day_admission_adult_covid_cases
-## 1 2020-03-05    AK        NaN         NaN         NaN                    NA                          NA                                       NA
-## 2 2020-03-05    AL        NaN         NaN         NaN             0.2580645                           0                                       NA
-## 3 2020-03-05    AR        NaN         NaN         NaN                    NA                          NA                                       NA
-## 4 2020-03-05    AZ  0.3333333  0.00000000         NaN             0.9800000                           0                                       NA
-## 5 2020-03-05    CA  0.2000000  0.02222222           1             0.3636364                           0                                       NA
-## 6 2020-03-05    CO  1.0000000  0.00000000         NaN                    NA                          NA                                       NA
-##   previous_day_admission_pediatric_covid_confirmed_P previous_day_admission_adult_covid_suspected_P previous_day_admission_pediatric_covid_cases
-## 1                                                 NA                                             NA                                           NA
-## 2                                                 NA                                             NA                                           NA
-## 3                                                 NA                                             NA                                           NA
-## 4                                                 NA                                             NA                                           NA
-## 5                                                 NA                                             NA                                           NA
-## 6                                                 NA                                             NA                                           NA
-##   previous_day_admission_pediatric_covid_confirmed_P.1 previous_day_admission_pediatric_covid_suspected_P
-## 1                                                   NA                                                 NA
-## 2                                                   NA                                                 NA
-## 3                                                   NA                                                 NA
-## 4                                                   NA                                                 NA
-## 5                                                   NA                                                 NA
-## 6                                                   NA                                                 NA</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">date</th>
+<th align="left">state</th>
+<th align="right">new_case_P</th>
+<th align="right">tot_death_P</th>
+<th align="right">new_death_P</th>
+<th align="right">inpatient_beds_used_P</th>
+<th align="right">inpatient_beds_used_covid_P</th>
+<th align="right">previous_day_admission_adult_covid_cases</th>
+<th align="right">previous_day_admission_pediatric_covid_confirmed_P</th>
+<th align="right">previous_day_admission_adult_covid_suspected_P</th>
+<th align="right">previous_day_admission_pediatric_covid_cases</th>
+<th align="right">previous_day_admission_pediatric_covid_confirmed_P.1</th>
+<th align="right">previous_day_admission_pediatric_covid_suspected_P</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">2020-03-05</td>
+<td align="left">AK</td>
+<td align="right">NaN</td>
+<td align="right">NaN</td>
+<td align="right">NaN</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">2020-03-05</td>
+<td align="left">AL</td>
+<td align="right">NaN</td>
+<td align="right">NaN</td>
+<td align="right">NaN</td>
+<td align="right">0.2580645</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">2020-03-05</td>
+<td align="left">AR</td>
+<td align="right">NaN</td>
+<td align="right">NaN</td>
+<td align="right">NaN</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">2020-03-05</td>
+<td align="left">AZ</td>
+<td align="right">0.3333333</td>
+<td align="right">0.0000000</td>
+<td align="right">NaN</td>
+<td align="right">0.9800000</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">2020-03-05</td>
+<td align="left">CA</td>
+<td align="right">0.2000000</td>
+<td align="right">0.0222222</td>
+<td align="right">1</td>
+<td align="right">0.3636364</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">2020-03-05</td>
+<td align="left">CO</td>
+<td align="right">1.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">NaN</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="nationwide-data" class="section level2">

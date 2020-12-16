@@ -1,36 +1,38 @@
 # Missing values
 ```{r}
 library(naniar)
-```
-```{r}
 Covid19_selected_df=read.csv("data/Covid19_selected.csv")
 ```
-First we can have a quick review of our dataset, we can see clearly that their are many missing values (NA entries) in our dataframe.
+First we can have a quick review of our dataset, we can see clearly that their are many missing values (NA entries) in our dataframe.  
 
+##  Number of Missing values for each variable
 ```{r}
-colSums(is.na(Covid19_selected_df))
+library(knitr)
+kable(colSums(is.na(Covid19_selected_df)))
 ```
-A lot of columns have more than 5,000 missing values.
+
+14 columns have more than 5,000 missing values.  
 
 ```{r}
 vis_miss(Covid19_selected_df)
 ```
-This plot provides a specific visualiation of the amount of missing data, showing in black the location of missing values, and also providing information on the overall percentage of missing values overall (in the legend), and in each variable.
 
-From this Most of missing values do not show by random, but they have patterns.
+This plot provides a specific visualiation of the amount of missing data, showing in black the location of missing values, and also providing information on the overall percentage of missing values overall (in the legend), and in each variable.  
 
+##  Patterns of Missing values
 ```{r}
 gg_miss_var(Covid19_selected_df, show_pct = TRUE)
 ```
 
-
-An upset plot from the UpSetR package can be used to visualise the patterns of missingness, or rather the combinations of missingness across cases. To see combinations of missingness and intersections of missingness amongst variables, use the gg_miss_upset function:
+From the plot above, most of missing values do not show by random, but they have patterns.  
 
 ```{r}
 gg_miss_upset(Covid19_selected_df)
 ```
-6467 cases that those five columns have missing value together
-152 adult_icu_bed_occupancy and adult_icu_bed_covid_utilization_NA
+
+An upset plot from the UpSetR package can be used to visualise the patterns of missingness, or rather the combinations of missingness across cases. To see combinations of missingness and intersections of missingness amongst variables, use the gg_miss_upset function:   
+6467 cases missing those five columns together;  
+152 cases missing adult_icu_bed_occupancy and adult_icu_bed_covid_utilization_NA.  
 
 
 
