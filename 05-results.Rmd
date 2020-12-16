@@ -6,10 +6,48 @@ editor_options:
 # Results
 ```{r}
 library(tidyverse)
+library(usmap)
+library(ggplot2)
+library(ggridges)
+library(shiny)
+library(lubridate)
+library(zoo)
 Covid_19<-read.csv("data/Covid19_selected.csv")
+Covid_19$date = as.character(Covid_19$date)
+Covid_19$date = parse_date(Covid_19$date, format = "%Y-%m-%d")
 ```
 
-## Parallel coordinates plot for total cases 
+```{r}
+US_cases_df = read.csv("./data/US_cases.csv")
+US_cases_df$submission_date = as.character(US_cases_df$submission_date)
+US_cases_df$submission_date = parse_date(US_cases_df$submission_date,format = "%Y-%m-%d")
+```
+
+
+## How does Covid19 spread by States over time?
+
+### Total cases in US 
+```{r fig.height=10,fig.width=12}
+# Extract total cases of each states by month
+covid19_tot_cases = Covid_19 %>%
+                    select(date, state, tot_cases) %>%
+                    drop_na() %>%
+                    mutate(Date_month = month(date)) %>%
+                    group_by(Date_month, state) %>%
+                    summarise(all_total = max(tot_cases))
+
+covid19_tot_cases$Date_month = as.factor(covid19_tot_cases$Date_month)
+covid19_tot_cases$all_total=covid19_tot_cases$all_total/1000
+
+# Plot the latest confirmed cases in US by states
+plot_usmap(data = na.omit(covid19_tot_cases), values = "all_total", color = "lightblue") + 
+  scale_fill_continuous(name = "Confirmed (in thousands)",low = "white", high = "lightblue") + 
+  ggtitle("Confirmed covid-19 cases") +
+  theme(legend.position = "right",plot.title = element_text(face="bold",hjust = 0.5)) +
+  facet_wrap(~Date_month, ncol=3, drop=TRUE)
+```
+
+### Monthly total cases (in thousands) by States
 ```{r}
 Pc_data<-Covid_19 %>% 
   select(date,state,new_case) %>% 
@@ -21,16 +59,119 @@ Pc_data<-Covid_19 %>%
 ```
 ```{r}
 Pc_tidydata<-Pc_data %>% 
+  mutate(monthly_total_new_case = monthly_total_new_case/1000) %>% 
   spread(month, monthly_total_new_case)
+  
 ```
 
 ```{r}
 library(fivethirtyeight)
 library(parcoords)
-parcoords(Pc_tidydata, brushMode = "1d-axes", reorderable = TRUE, rownames = FALSE)
+parcoords(Pc_tidydata, brushMode = "1d-axes", reorderable = TRUE, rownames = FALSE,height=700, width = 900)
 ```
 
-## Pie chart for inpatient beds utilization
+### New case / Total case by States
+```{r}
+Covid_19$increase_rate = Covid_19$new_case / Covid_19$tot_cases
+```
+```{r fig.height=10,fig.width=12}
+ggplot(data=Covid_19, aes(x=X, y = increase_rate, group = state)) + 
+  geom_line() + facet_wrap(~state)
+```
+
+## How does medical resources affect Covid19 death rate?
+
+### Death rate and hospital admission rate 
+```{r}
+dh_data<-Covid_19 %>% 
+  select(date,state,tot_cases,tot_death,total_adult_patients_hospitalized_confirmed_covid,total_pediatric_patients_hospitalized_confirmed_covid) %>%
+  mutate(total_hospitalized_confirmed_covid=total_adult_patients_hospitalized_confirmed_covid+total_pediatric_patients_hospitalized_confirmed_covid) %>% 
+  group_by(date) %>% 
+  summarise_at(.vars=vars(tot_cases,tot_death,total_hospitalized_confirmed_covid),
+    .funs = c(sum="sum")) %>% 
+  
+  mutate(death_rate=tot_death_sum/tot_cases_sum,hospital_admission_rate=total_hospitalized_confirmed_covid_sum/tot_cases_sum) %>%
+  mutate(death_rate_07=rollmean(death_rate,k=7,fill=NA)) %>% 
+  mutate(hospital_admission_rat_07=rollmean(hospital_admission_rate,k=7,fill=NA)) %>% 
+  drop_na()
+  
+# hospital admission data start at 7-26
+```
+
+```{r}
+dh_tidydata <- dh_data%>% 
+  select(date,death_rate,hospital_admission_rate) %>% 
+  pivot_longer(cols=c(death_rate,hospital_admission_rate),names_to="Variable",values_to="Rate") 
+```
+
+```{r fig.height=8,fig.width=12}
+dh_tidydata %>% ggplot(aes(x=as.Date(date),y=Rate)) +
+  geom_line(aes(color=Variable)) + 
+  scale_x_date(date_breaks="4 weeks")+
+  xlab("Date") +
+  ylim(0,0.03)+
+  ggtitle("Nationwide death rate vs. hospital admission rate")+
+  theme(plot.title = element_text(face="bold",hjust = 0.5))
+```
+
+### Death rate and inpatient bed availability 
+
+```{r}
+dot_data<-Covid_19 %>% 
+  select(date,state,inpatient_beds,inpatient_beds_used,tot_cases,tot_death) %>% 
+  mutate(inpatient_beds_availible=inpatient_beds-inpatient_beds_used) %>%
+  drop_na() %>%
+  mutate(death_rate=tot_death/tot_cases) %>% 
+  group_by(state) %>% 
+  mutate(capacity_07=rollmean(inpatient_beds_availible/1000,k=7,fill=NA)) %>% 
+  mutate(death_rate_07=rollmean(death_rate,k=7,fill=NA)) %>% 
+  drop_na()
+```
+
+
+```{r fig.height=8,fig.width=10}
+dot_data %>% 
+  ggplot(aes(capacity_07,death_rate_07)) +
+  scale_fill_gradient(low="#F6F8FB",high="#09005F")+
+  geom_hex(bins=10)+
+  xlab("7-days average available inpatient beds (in thousands)")+
+  ylab("7-days death rate")+
+  ggtitle("Heatmap for inpatient beds availability and Covid19 death rate")+
+  theme(plot.title = element_text(face="bold",hjust = 0.5))
+```
+
+This is a heatmap for available impatient beds and death rate. Because there is a delay for reporting death and death rate is more likely relating to number of available bed before death, we use the 7 days average value to see the relationship. It shows in the heapmap that
+
+* Data with death rate higher than 10% has number of available inpatient beds less than 5000.
+
+* When there are more than 15000 available inpatient beds, the death rate is below 5%.
+
+### Death rate and inpatient beds availability by States 
+```{r}
+Cd_data<-Covid_19 %>% 
+  select(date,state,inpatient_beds,inpatient_beds_used) %>% 
+  mutate(inpatient_beds_availible=inpatient_beds-inpatient_beds_used) %>%
+  drop_na() %>% 
+  mutate(month=cut(as.Date(date),breaks='month',labels=c('Mar',"Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"))) %>% 
+  group_by(month,state) %>% 
+  summarise(avrg_inpatient_beds_available=round(mean(inpatient_beds_availible),0)/1000)
+```
+
+```{r fig.height=10,fig.width=12}
+Cd_data %>% 
+  ggplot(aes(x=avrg_inpatient_beds_available,y=reorder(state,avrg_inpatient_beds_available)))+
+  geom_point()+
+  facet_wrap(~month,nrow=1,ncol = 9)+
+  ylab("")+
+  ggtitle("Monthly average number of avaliable inpatient beds by States")+
+  xlab("Average available inpatient beds (in thousands)")+
+  theme(plot.title = element_text(face="bold",hjust = 0.5))
+```
+
+From this dot plot, we can clearly see that hospitals in most of the states increased inpatient beds. Compare to other states, FL, CA, TX and NY prepared more beds for Covid patient.
+
+
+### Pie chart for inpatient beds utilization
 
 ```{r}
 pie_data<-Covid_19 %>% 
@@ -61,146 +202,14 @@ pie_tidydata %>% ggplot(aes(x="",y=value,fill=group))+
 
 ```
 
-## Cleveland dot plot for inpatient bed availability
-```{r}
-Cd_data<-Covid_19 %>% 
-  select(date,state,inpatient_beds,inpatient_beds_used) %>% 
-  mutate(inpatient_beds_availible=inpatient_beds-inpatient_beds_used) %>%
-  drop_na() %>% 
-  mutate(month=cut(as.Date(date),breaks='month',labels=c('Mar',"Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"))) %>% 
-  group_by(month,state) %>% 
-  summarise(avrg_inpatient_beds_available=round(mean(inpatient_beds_availible),0))
-```
 
-```{r fig.height=10,fig.width=12}
-Cd_data %>% 
-  ggplot(aes(x=avrg_inpatient_beds_available,y=reorder(state,avrg_inpatient_beds_available)))+
-  geom_point()+
-  facet_wrap(~month,nrow=1,ncol = 9)+
-  ylab("")+
-  ggtitle("Monthly average number of avaliable inpatient beds over states")+
-  theme(plot.title = element_text(face="bold",hjust = 0.5))
-```
+## Does Covid19 impact differently on adult and pediatric patient?
 
-From this dot plot, we can clearly see that hospitals in most of the states increased inpatient beds. Compare to other states, FL, CA, TX and NY prepared more beds for Covid patient.
-
-## Heatmap for death rate and bed availability 
+### Comparison between adult and pediatric patient over time
 
 ```{r}
-library(zoo)
-dot_data<-Covid_19 %>% 
-  select(date,state,inpatient_beds,inpatient_beds_used,tot_cases,tot_death) %>% 
-  mutate(inpatient_beds_availible=inpatient_beds-inpatient_beds_used) %>%
-  drop_na() %>%
-  mutate(death_rate=tot_death/tot_cases) %>% 
-  group_by(state) %>% 
-  mutate(capacity_07=rollmean(inpatient_beds_availible,k=7,fill=NA)) %>% 
-  mutate(death_rate_07=rollmean(death_rate,k=7,fill=NA)) %>% 
-  drop_na()
-```
-
-
-```{r}
-dot_data %>% 
-  ggplot(aes(capacity_07,death_rate_07)) +
-  scale_fill_gradient(low="#F6F8FB",high="#09005F")+
-  geom_hex(bins=10)+
-  xlab("7-days average available inpatient beds")+
-  ylab("7-days death rate")+
-  ggtitle("Heatmap for inpatient beds availability and Covid19 death rate")+
-  theme(plot.title = element_text(face="bold",hjust = 0.5))
-```
-
-This is a heatmap for available impatient beds and death rate. Because there is a delay for reporting death and death rate is more likely relating to number of available bed before death, we use the 7 days average value to see the relationship. It shows in the heapmap that
-
-* Data with death rate higher than 10% has number of available inpatient beds less than 5000.
-
-* When there are more than 15000 available inpatient beds, the death rate is below 5%.
-
-## Death rate and hospital admission rate (US)
-```{r}
-dh_data<-Covid_19 %>% 
-  select(date,state,tot_cases,tot_death,total_adult_patients_hospitalized_confirmed_covid,total_pediatric_patients_hospitalized_confirmed_covid) %>%
-  mutate(total_hospitalized_confirmed_covid=total_adult_patients_hospitalized_confirmed_covid+total_pediatric_patients_hospitalized_confirmed_covid) %>% 
-  group_by(date) %>% 
-  summarise_at(.vars=vars(tot_cases,tot_death,total_hospitalized_confirmed_covid),
-    .funs = c(sum="sum")) %>% 
-  
-  mutate(death_rate=tot_death_sum/tot_cases_sum,hospital_admission_rate=total_hospitalized_confirmed_covid_sum/tot_cases_sum) %>%
-  mutate(death_rate_07=rollmean(death_rate,k=7,fill=NA)) %>% 
-  mutate(hospital_admission_rat_07=rollmean(hospital_admission_rate,k=7,fill=NA)) %>% 
-  drop_na()
-  
-# hospital admission data start at 7-26
-```
-
-```{r}
-dh_tidydata <- dh_data%>% 
-  select(date,death_rate,hospital_admission_rate) %>% 
-  pivot_longer(cols=c(death_rate,hospital_admission_rate),names_to="variable",values_to="rate") 
-```
-
-```{r}
-dh_tidydata %>% ggplot(aes(x=as.Date(date),y=rate)) +
-  geom_line(aes(color=variable)) + 
-  scale_x_date(date_breaks="4 weeks")+
-  xlab("") +
-  ylim(0,0.03)+
-  ggtitle("Nationwide death rate vs. hospital admission rate")+
-  theme(plot.title = element_text(face="bold",hjust = 0.5))
-```
-
-
-```{r}
-library(usmap)
-library(ggplot2)
-
-library(shiny)
-library(tidyverse)
-library(lubridate)
-```
-
-```{r}
-covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
-covid19_merged_df$date = as.character(covid19_merged_df$date)
-covid19_merged_df$date = parse_date(covid19_merged_df$date, format = "%Y-%m-%d")
-
-US_cases_df = read.csv("./data/US_cases.csv")
-US_cases_df$submission_date = as.character(US_cases_df$submission_date)
-US_cases_df$submission_date = parse_date(US_cases_df$submission_date,format = "%Y-%m-%d")
-```
-
-## Total cases in US (static)
-```{r}
-# Extract total cases of each states by month
-covid19_tot_cases = covid19_merged_df %>%
-                    select(date, state, tot_cases) %>%
-                    drop_na() %>%
-                    mutate(Date_month = month(date)) %>%
-                    group_by(Date_month, state) %>%
-                    summarise(all_total = max(tot_cases))
-
-covid19_tot_cases$Date_month = as.factor(covid19_tot_cases$Date_month)
-
-# Plot the latest confirmed cases in US by states
-plot_usmap(data = na.omit(covid19_tot_cases), values = "all_total", color = "red") + 
-  scale_fill_continuous(name = "Confirmed",low = "white", high = "red") + 
-  theme(legend.position = "right") +
-  ggtitle("Confirmed covid-19 cases") +
-  facet_wrap(~Date_month, ncol=3, drop=TRUE)
-```
-
-## Comparison between adult and pediatric patient over time
-```{r}
-library(ggridges)
-```
-```{r}
-Covid19_selected_df =  read.csv("./data/Covid19_selected.csv")
-```
-
-```{r}
-Covid19_selected_df$Month <- format(as.Date(Covid19_selected_df$date), "%m")
-data <- Covid19_selected_df %>% select(Month, total_adult_patients_hospitalized_confirmed_covid, total_pediatric_patients_hospitalized_confirmed_covid)
+Covid_19$Month <- format(as.Date(Covid_19$date), "%m")
+data <- Covid_19 %>% select(Month, total_adult_patients_hospitalized_confirmed_covid, total_pediatric_patients_hospitalized_confirmed_covid)
 newdata <- na.omit(data)
 ```
 ```{r}
@@ -214,14 +223,7 @@ ggplot(tidydata, aes(fill=stat, y=number, x=Month)) +
     geom_bar(position="fill", stat="identity")
 ```
 
-## New case / Total case in different states
-```{r}
-Covid19_selected_df$increase_rate = Covid19_selected_df$new_case / Covid19_selected_df$tot_cases
-```
-```{r}
-ggplot(data=Covid19_selected_df, aes(x=X, y = increase_rate, group = state)) + 
-  geom_line() + facet_wrap(~state)
-```
+
 
 
 

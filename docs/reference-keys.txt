@@ -18,3 +18,17 @@ total-cases-in-us-static
 interactive-component
 compare-death-rates-between-two-states-in-us-d3
 conclusion
+comparison-between-adult-and-pediatric-patient-over-time
+new-case-total-case-in-different-states
+how-does-covid19-spread-over-time
+parallel-coordinates-plot-for-total-cases-of-every-month
+how-does-medical-resources-affect-covid19-death-rate
+how-does-covid19-spread-by-states-over-time
+total-cases-in-us
+monthly-total-cases-by-states
+new-case-total-case-by-states
+death-rate-and-hospital-admission-rate
+death-rate-and-inpatient-bed-availability
+death-rate-and-inpatient-beds-availability-by-states
+does-covid19-impact-differently-on-adult-and-pediatric-patient
+monthly-total-cases-in-thousands-by-states
