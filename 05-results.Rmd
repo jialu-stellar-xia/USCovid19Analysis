@@ -83,7 +83,7 @@ plot_usmap(data = na.omit(covid19_new_cases), values = "all_new_total", color = 
 The plots above show the trend of increased cases in US from March to November. In March, the break-out of covid-19 occurred in NY and surrounding areas. After that, the second phrase of break-out occurred in CA, TX, FL and NY in July. After that, the cases of IL and the nearby regions also increased rapidly.
 
 
-### Monthly total cases (in thousands) by States
+### Monthly new cases (in thousands) by States
 ```{r}
 Pc_data<-Covid_19 %>% 
   select(date,state,new_case) %>% 
@@ -106,6 +106,14 @@ library(parcoords)
 parcoords(Pc_tidydata, brushMode = "1d-axes", reorderable = TRUE, rownames = FALSE,height=700, width = 900)
 ```
 
+This parallel coordinate plot captures monthly total new cases from March to November by States. Observing the outliers of each month, we could conclude that 
+
+* The situations of NY and NJ were most sever at the beginning of the epidemic, but the new cases were reduced a lot after May.
+
+* From June to November, most new cases were confirmed in TX, FL and CA.
+
+* The number of monthly new cases in IL has two obvious peaks in May and November respectively.
+
 ### New case / Total case by States
 ```{r}
 Covid_19$increase_rate = Covid_19$new_case / Covid_19$tot_cases
@@ -117,7 +125,7 @@ ggplot(data=Covid_19, aes(x=X, y = increase_rate, group = state)) +
 
 ## How does medical resources affect Covid19 death rate?
 
-### Death rate and hospital admission rate 
+### Death rate and Hospital admission rate 
 ```{r}
 dh_data<-Covid_19 %>% 
   select(date,state,tot_cases,tot_death,total_adult_patients_hospitalized_confirmed_covid,total_pediatric_patients_hospitalized_confirmed_covid) %>%
@@ -143,14 +151,39 @@ dh_tidydata <- dh_data%>%
 ```{r fig.height=8,fig.width=12}
 dh_tidydata %>% ggplot(aes(x=as.Date(date),y=Rate)) +
   geom_line(aes(color=Variable)) + 
-  scale_x_date(date_breaks="4 weeks")+
+  scale_x_date(date_breaks="2 weeks")+
   xlab("Date") +
   ylim(0,0.03)+
   ggtitle("Nationwide death rate vs. hospital admission rate")+
   theme(plot.title = element_text(face="bold",hjust = 0.5))
 ```
 
-### Death rate and inpatient bed availability 
+This line chart displays average death rate and hospital admission rate of Covid19 patients in the US. Because the hospital admission data before 2020-07-26 is missing, time of this plot starts from 2020-07-26. From the plot, we can see that overall hospital admission rate increased from 2020-09-28, and death rate not only decreased but also decreased faster. There are a lot of factors affect death rate, this plot shows that hospital admission rate is one of the factors. And this inspired us to explore the relationship between hospital admission rate and the change rate of death rate. 
+
+### Decrease rate of death-rate and Hospital admission rate
+
+```{r}
+ddh_data<-dh_data %>% 
+  mutate(decrease_rate_death_rate=abs((death_rate-lag(death_rate))/lag(death_rate)))
+```
+```{r}
+ddh_tidydata<-ddh_data %>% 
+  select(date,decrease_rate_death_rate,hospital_admission_rate) %>% 
+  pivot_longer(cols=c(decrease_rate_death_rate,hospital_admission_rate),names_to="Variable",values_to="Rate") 
+```
+
+```{r fig.height=8,fig.width=12}
+ddh_tidydata %>% ggplot(aes(x=as.Date(date),y=Rate)) +
+  geom_smooth(aes(color=Variable)) + 
+  scale_x_date(date_breaks="2 weeks")+
+  xlab("Date") +
+  ggtitle("Decrease rate of death rate vs. hospital admission rate")+
+  theme(plot.title = element_text(face="bold",hjust = 0.5))
+```
+
+This is a smoothed plot of decrease rate of death rate and hospital admission rate. The pattern is very clear that when hospital admission rate decreases, death rate decreases slower. And when hospital admission rate increases, death rate decreases faster. We can conclude that enlarging the hospital capacity and receiving more Covid19 patients could speed up the death rate decreasing.
+
+### Death rate and Inpatient bed availability 
 
 ```{r}
 dot_data<-Covid_19 %>% 
@@ -206,9 +239,28 @@ Cd_data %>%
 
 From this dot plot, we can clearly see that hospitals in most of the states increased inpatient beds. Compare to other states, FL, CA, TX and NY prepared more beds for Covid patient.
 
+```{r}
+Cdd_data<-Covid_19 %>% 
+  select(date,state,tot_cases,tot_death) %>% 
+  mutate(death_rate=tot_death/tot_cases) %>%
+  drop_na() %>% 
+  mutate(month=cut(as.Date(date),breaks='month',labels=c('Mar',"Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"))) %>% 
+  group_by(month,state) %>% 
+  summarise(avrg_death_rate=round(mean(death_rate),4))
+```
 
-## Pie chart for inpatient beds utilization
+```{r fig.height=10,fig.width=12}
+Cdd_data %>% 
+  ggplot(aes(x=avrg_death_rate,y=reorder(state,avrg_death_rate)))+
+  geom_point()+
+  facet_wrap(~month,nrow=1,ncol = 9)+
+  ylab("")+
+  ggtitle("Monthly average death rate by States")+
+  xlab("Average death rate beds")+
+  theme(plot.title = element_text(face="bold",hjust = 0.5))
+```
 
+### Comparison between adult and pediatric patient over time
 ```{r}
 pie_data<-Covid_19 %>% 
   select(date,state,inpatient_beds,inpatient_beds_used,inpatient_beds_used_covid) %>% 
@@ -218,7 +270,7 @@ pie_data<-Covid_19 %>%
   select(date,state,inpatient_beds_empty,inpatient_beds_used_covid,inpatient_beds_used_others)
 ```
 
-### Comparison between adult and pediatric patient over time
+
 ```{r}
 pie_tidydata<-pie_data %>% 
   pivot_longer(cols=!c(date,state),names_to="group",values_to="number") %>% 
