@@ -26,3 +26,6 @@ comparison-between-adult-and-pediatric-patient-over-time-1
 interactive-component
 compare-death-rates-between-two-states-in-us-d3
 conclusion
+monthly-new-cases-in-thousands-by-states
+change-rate-of-death-rate-and-hospital-admission-rate
+decrease-rate-of-death-rate-and-hospital-admission-rate
