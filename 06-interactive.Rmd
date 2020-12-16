@@ -1,7 +1,7 @@
 # Interactive component
 
 ## Compare death rates between two states in US (D3)
-<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3.v6.js"></script>
 <b>Compare two states</b>
 <select id="selectButton1"></select>
 <select id="selectButton2"></select>
@@ -25,4 +25,4 @@ death_rate_df$death_rate = death_rate_df$tot_death / death_rate_df$tot_cases
 r2d3(data=death_rate_df, script = "./js/death_rate.js")
 ```
 
-
+The interactive plot provides us with the funtionality to compare the trends of covid-19 total cases in two states. Since the number of states in US is large, it is hard to make comparisons between the trends of two states within fifty lines on the plot. Therefore, the interactive plot enables the user to choose two of the fifty states in US and plot the corresponding lines of total cases along with time, which could help the user understand the trends of differents states.

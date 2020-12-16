@@ -170,7 +170,8 @@ US_cases_df$submission_date = as.character(US_cases_df$submission_date)
 US_cases_df$submission_date = parse_date(US_cases_df$submission_date,format = "%Y-%m-%d")
 ```
 
-## Total cases in US (static)
+## Trend of Covid-19 in US
+### Total cases
 ```{r}
 # Extract total cases of each states by month
 covid19_tot_cases = covid19_merged_df %>%
@@ -189,6 +190,31 @@ plot_usmap(data = na.omit(covid19_tot_cases), values = "all_total", color = "red
   ggtitle("Confirmed covid-19 cases") +
   facet_wrap(~Date_month, ncol=3, drop=TRUE)
 ```
+
+The plots above show the trend of total cases in US from March to November. At the very beginning, we find that the pandemic only exists in NY state (with few cases in other states). As time goes on, the covid-19 cases spread rapidly through CA, TX and FL from June. From the nine plots above, it seems that the number of total cases in the east coast is higher than the one in the west and middle.
+
+### New cases
+```{r}
+# Extract total cases of each states by month
+covid19_tot_cases = covid19_merged_df %>%
+                    select(date, state, new_case) %>%
+                    drop_na() %>%
+                    mutate(Date_month = month(date)) %>%
+                    group_by(Date_month, state) %>%
+                    summarise(all_new_total = sum(new_case))
+
+covid19_tot_cases$Date_month = as.factor(covid19_tot_cases$Date_month)
+
+# Plot the latest confirmed cases in US by states
+plot_usmap(data = na.omit(covid19_tot_cases), values = "all_new_total", color = "red") + 
+  scale_fill_continuous(name = "Increased",low = "white", high = "red") + 
+  theme(legend.position = "right") +
+  ggtitle("Increased covid-19 cases") +
+  facet_wrap(~Date_month, ncol=3, drop=TRUE)
+```
+
+The plots above show the trend of increased cases in US from March to November. In March, the break-out of covid-19 occurred in NY and surrounding areas. After that, the second phrase of break-out occurred in CA, TX, FL and NY in July. After that, the cases of IL and the nearby regions also increased rapidly.
+
 
 ## Comparison between adult and pediatric patient over time
 ```{r}
