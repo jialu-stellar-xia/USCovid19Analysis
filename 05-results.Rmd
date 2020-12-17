@@ -322,7 +322,7 @@ ggplot(tidydata, aes(y=number, x=Month,fill=stat)) +
         legend.title = element_blank())
 ```
 
-From this picture we can see clearly that from April to September, the percentage of children who and confirmed and hospitalized has different patterns between first three months and last four months. It is because first three most states didn't distinguish adult and children. In the last four months, we can see that the percentage of children shows an increasing trend. But still, the number of children who infected Covid19 is much more lower than that of adults. This is consistent with some research result that children are less likely to infect Covid19 than adults.
+From this picture we can see clearly that from April to September, the percentage of children who and confirmed and hospitalized has different patterns between first three months and last four months. It is because first three most states didn't distinguish adult and children. In the last four months, we can see that the percentage of children shows an increasing trend. But still, the number of children who infected Covid19 is much more lower than that of adults. This is consistent with some research result that children are less likely to infect Covid-19 than adults.
 
 
 
