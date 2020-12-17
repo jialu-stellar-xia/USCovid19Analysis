@@ -5,12 +5,13 @@ editor_options:
 ---
 # Data sources
 
-* Two Covid-19 datasets in csv format are collected from [healthdata.gov](https://healthdata.gov/). They are [COVID-19 cases and deaths by States over time (Cases_and_Deaths)](https://healthdata.gov/dataset/united-states-covid-19-cases-and-deaths-state-over-time) and [COVID-19 patient impact and hospital capacity by State over time (Hospital_Utilization)](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-state-timeseries). We would combine two datasets for our use.
+* Two Covid-19 datasets in csv format are collected (we searched dataset together and discussed to choose which to explore) from [healthdata.gov](https://healthdata.gov/). They are [COVID-19 cases and deaths by States over time (Cases_and_Deaths)](https://healthdata.gov/dataset/united-states-covid-19-cases-and-deaths-state-over-time) and [COVID-19 patient impact and hospital capacity by State over time (Hospital_Utilization)](https://healthdata.gov/dataset/covid-19-reported-patient-impact-and-hospital-capacity-state-timeseries). We would combine two datasets for our use.
 ```{r}
 library(tidyverse)
 Cases_and_Deaths<-read_csv("data/United_States_COVID-19_Cases_and_Deaths_by_State_over_Time.csv")
 Hospital_Utilization<-read_csv("data/reported_hospital_utilization_timeseries_20201115_2134.csv")
 ```
+
 * Cases_and_Deaths has 18000 observations by 60 States from 2020-01-22 to 2020-11-16. Hospital_Utilization has 14003 observations by 53 States from 2020-01-01 to 2020-11-15.
 ```{r}
 Cases_and_Deaths$submission_date<-parse_date(Cases_and_Deaths$submission_date,format = "%m/%d/%Y")
@@ -113,4 +114,6 @@ bed, including NICU, newborn, and nursery, who are laboratory-confirmed-positive
     27) adult_icu_bed_utilization: [num] Percentage of staffed adult ICU beds that are being utilized in this state. This number only accounts for hospitals in the state that report both "staffed_adult_icu_bed_occupancy" and "total_staffed_adult_icu_beds" fields.
 
 * The data is not 100% accurate. Since COVID-19 can cause mild illness, symptoms might not appear immediately, there are delays in reporting and testing, not everyone who is infected gets tested or seeks medical care, and there are differences in how completely states and territories report their cases.
+
+* There is much missing data, we will discuss the pattern of missing data in the Missing data chapter.
     

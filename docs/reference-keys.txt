@@ -29,3 +29,6 @@ conclusion
 monthly-new-cases-in-thousands-by-states
 change-rate-of-death-rate-and-hospital-admission-rate
 decrease-rate-of-death-rate-and-hospital-admission-rate
+ratio-of-new-cases-and-total-cases-over-time-by-states
+does-covid19-impact-differently-on-adult-and-pediatric-patients
+comparison-between-adult-and-pediatric-patients-over-time

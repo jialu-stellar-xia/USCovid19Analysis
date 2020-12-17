@@ -12,17 +12,15 @@ library(ggridges)
 library(shiny)
 library(lubridate)
 library(zoo)
+library(knitr)
 Covid_19<-read.csv("data/Covid19_selected.csv")
 Covid_19$date = as.character(Covid_19$date)
 Covid_19$date = parse_date(Covid_19$date, format = "%Y-%m-%d")
-```
 
-```{r}
 US_cases_df = read.csv("./data/US_cases.csv")
 US_cases_df$submission_date = as.character(US_cases_df$submission_date)
 US_cases_df$submission_date = parse_date(US_cases_df$submission_date,format = "%Y-%m-%d")
 ```
-
 
 ## How does Covid19 spread by States over time?
 
@@ -39,22 +37,28 @@ US_cases_df$submission_date = parse_date(US_cases_df$submission_date,format = "%
 ### Total cases in US 
 ```{r fig.height=10,fig.width=12}
 # Extract total cases of each states by month
-covid19_tot_cases = covid19_merged_df %>%
+covid19_tot_cases<-covid19_merged_df %>%
                     select(date, state, tot_cases) %>%
                     drop_na() %>%
-                    mutate(Date_month = month(date)) %>%
+                  mutate(Date_month=cut(as.Date(date),breaks='month',labels=c('Mar',"Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"))) %>% 
                     group_by(Date_month, state) %>%
-                    summarise(all_total = max(tot_cases))
+                    summarise(all_total = max(tot_cases)) 
 
 covid19_tot_cases$Date_month = as.factor(covid19_tot_cases$Date_month)
 covid19_tot_cases$all_total=covid19_tot_cases$all_total/1000
 
 # Plot the latest confirmed cases in US by states
 plot_usmap(data = na.omit(covid19_tot_cases), values = "all_total", color = "#0072B2") + 
-  scale_fill_continuous(name = "Confirmed (in thousands)",low = "white", high = "#0072B2") + 
-  theme(legend.position = "right") +
+  scale_fill_continuous(name = "Confirmed number (in thousands)",low = "white", high = "#0072B2") + 
   ggtitle("Confirmed covid-19 cases by month") +
-  facet_wrap(~Date_month, ncol=3, drop=TRUE)
+  facet_wrap(~Date_month, ncol=3, drop=TRUE)+
+  theme(legend.position = "bottom",
+        legend.direction="horizontal",
+        legend.text=element_text(size=10),
+        legend.title=element_text(size=16),
+        plot.title = element_text(hjust = 0.5, size=20),
+        strip.text = element_text(face="bold", size=12)) 
+
 ```
 
 The plots above show the trend of total cases in US from March to November. At the very beginning, we find that the pandemic only exists in NY state (with few cases in other states). As time goes on, the covid-19 cases spread rapidly through CA, TX and FL from June. From the nine plots above, it seems that the number of total cases in the east coast is higher than the one in the west and middle.
@@ -65,7 +69,7 @@ The plots above show the trend of total cases in US from March to November. At t
 covid19_new_cases = covid19_merged_df %>%
                     select(date, state, new_case) %>%
                     drop_na() %>%
-                    mutate(Date_month = month(date)) %>%
+                  mutate(Date_month=cut(as.Date(date),breaks='month',labels=c('Mar',"Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"))) %>%
                     group_by(Date_month, state) %>%
                     summarise(all_new_total = sum(new_case))
 
@@ -74,10 +78,15 @@ covid19_new_cases$all_new_total=covid19_new_cases$all_new_total/1000
 
 # Plot the latest confirmed cases in US by states
 plot_usmap(data = na.omit(covid19_new_cases), values = "all_new_total", color = "#0072B2") + 
-  scale_fill_continuous(name = "Increased (in thousands)",low = "white", high = "#0072B2") + 
-  theme(legend.position = "right") +
+  scale_fill_continuous(name = "Increased number (in thousands)",low = "white", high = "#0072B2") + 
   ggtitle("Increased covid-19 cases by month") +
-  facet_wrap(~Date_month, ncol=3, drop=TRUE)
+  facet_wrap(~Date_month, ncol=3, drop=TRUE)+
+  theme(legend.position = "bottom",
+        legend.direction="horizontal",
+        legend.text=element_text(size=10),
+        legend.title=element_text(size=16),
+        plot.title = element_text(hjust = 0.5, size=20),
+        strip.text = element_text(face="bold", size=12)) 
 ```
 
 The plots above show the trend of increased cases in US from March to November. In March, the break-out of covid-19 occurred in NY and surrounding areas. After that, the second phrase of break-out occurred in CA, TX, FL and NY in July. After that, the cases of IL and the nearby regions also increased rapidly.
@@ -114,17 +123,25 @@ This parallel coordinate plot captures monthly total new cases from March to Nov
 
 * The number of monthly new cases in IL has two obvious peaks in May and November respectively.
 
-### New case / Total case by States
+### Ratio of new cases and total cases over time by States
 ```{r}
 Covid_19$increase_rate = Covid_19$new_case / Covid_19$tot_cases
 ```
 ```{r fig.height=10,fig.width=12}
-ggplot(data=Covid_19, aes(x=X, y = increase_rate, group = state)) + 
-  geom_line() + ggtitle("New case / Total case by States") + facet_wrap(~state)
+ggplot(data=Covid_19, aes(x=as.Date(date), y = increase_rate, group = state)) + 
+  geom_line() + 
+  ggtitle("New case / Total case by States") + 
+  ylab("Ratio of new cases and total cases")+
+  xlab("Date")+
+  scale_x_date(date_breaks="24 weeks")+
+  facet_wrap(~state)+
+  theme(plot.title = element_text(hjust = 0.5, size=20),axis.text=element_text(size=12),legend.text=element_text(size=16),
+        legend.title=element_text(size=16),
+        axis.title =element_text(size=16),
+        strip.text = element_text(face="bold", size=12))
 ```
 
-From this graph we can see that the 50 states have a similar pattern in the ratio of New case to Total case over time: very high at the beginning, and then be stable at a low level. It can be a signal that many confirmed patients have been recovered
-, also shows  that covid-19 control measures have been effective.
+From this graph we can see that the 50 states have a similar pattern in the ratio of New case to Total case over time: very high at the beginning, and then be stable at a low level. It can be a signal that many confirmed patients have been recovered, also shows  that covid-19 control measures have been effective.
 
 ## How does medical resources affect Covid19 death rate?
 
@@ -154,11 +171,14 @@ dh_tidydata <- dh_data%>%
 ```{r fig.height=8,fig.width=12}
 dh_tidydata %>% ggplot(aes(x=as.Date(date),y=Rate)) +
   geom_line(aes(color=Variable)) + 
+  scale_color_manual(labels = c("Death rate", "Hospital admission rate"),values=c('#ff8080','#85e0e0'))+
   scale_x_date(date_breaks="2 weeks")+
   xlab("Date") +
   ylim(0,0.03)+
   ggtitle("Nationwide death rate vs. hospital admission rate")+
-  theme(plot.title = element_text(face="bold",hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5, size=20),axis.text=element_text(size=12),legend.text=element_text(size=16),
+        legend.title = element_blank(),
+        axis.title =element_text(size=16) )
 ```
 
 This line chart displays average death rate and hospital admission rate of Covid19 patients in the US. Because the hospital admission data before 2020-07-26 is missing, time of this plot starts from 2020-07-26. From the plot, we can see that overall hospital admission rate increased from 2020-09-28, and death rate not only decreased but also decreased faster. There are a lot of factors affect death rate, this plot shows that hospital admission rate is one of the factors. And this inspired us to explore the relationship between hospital admission rate and the change rate of death rate. 
@@ -179,9 +199,12 @@ ddh_tidydata<-ddh_data %>%
 ddh_tidydata %>% ggplot(aes(x=as.Date(date),y=Rate)) +
   geom_smooth(aes(color=Variable)) + 
   scale_x_date(date_breaks="2 weeks")+
+  scale_color_manual(labels = c("Decrease rate of death rate", "Hospital admission rate"),values=c('#ff8080','#85e0e0'))+
   xlab("Date") +
   ggtitle("Decrease rate of death rate vs. hospital admission rate")+
-  theme(plot.title = element_text(face="bold",hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5, size=20),axis.text=element_text(size=12),legend.text=element_text(size=16),
+        legend.title = element_blank(),
+        axis.title =element_text(size=16) )
 ```
 
 This is a smoothed plot of decrease rate of death rate and hospital admission rate. The pattern is very clear that when hospital admission rate decreases, death rate decreases slower. And when hospital admission rate increases, death rate decreases faster. We can conclude that enlarging the hospital capacity and receiving more Covid19 patients could speed up the death rate decreasing.
@@ -209,7 +232,9 @@ dot_data %>%
   xlab("7-days average available inpatient beds (in thousands)")+
   ylab("7-days death rate")+
   ggtitle("Heatmap for inpatient beds availability and Covid19 death rate")+
-  theme(plot.title = element_text(face="bold",hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5, size=20),axis.text=element_text(size=12),legend.text=element_text(size=16),
+        legend.title=element_text(size=16),
+        axis.title =element_text(size=16) )
 ```
 
 This is a heatmap for available impatient beds and death rate. Because there is a delay for reporting death and death rate is more likely relating to number of available bed before death, we use the 7 days average value to see the relationship. It shows in the heapmap that
@@ -237,10 +262,13 @@ Cd_data %>%
   ylab("")+
   ggtitle("Monthly average number of avaliable inpatient beds by States")+
   xlab("Average available inpatient beds (in thousands)")+
-  theme(plot.title = element_text(face="bold",hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5, size=20),axis.text=element_text(size=12),legend.text=element_text(size=16),
+        legend.title=element_text(size=16),
+        axis.title =element_text(size=16),
+        strip.text = element_text(face="bold", size=12))
 ```
 
-From this dot plot, we can clearly see that hospitals in most of the states increased inpatient beds. Compare to other states, FL, CA, TX and NY prepared more beds for Covid patient.
+The Cleveland dot plot is about average number of monthly available inpatient beds in different States and facet by month. From this dot plot, we can clearly see that hospitals in most of the states increased inpatient beds from March to November. Compare to other states, FL, CA, TX and NY prepared more beds for Covid patient.
 
 ```{r}
 Cdd_data<-Covid_19 %>% 
@@ -249,7 +277,7 @@ Cdd_data<-Covid_19 %>%
   drop_na() %>% 
   mutate(month=cut(as.Date(date),breaks='month',labels=c('Mar',"Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"))) %>% 
   group_by(month,state) %>% 
-  summarise(avrg_death_rate=round(mean(death_rate),4))
+  summarise(avrg_death_rate=round(mean(death_rate)*100,2))
 ```
 
 ```{r fig.height=10,fig.width=12}
@@ -259,48 +287,21 @@ Cdd_data %>%
   facet_wrap(~month,nrow=1,ncol = 9)+
   ylab("")+
   ggtitle("Monthly average death rate by States")+
-  xlab("Average death rate beds")+
-  theme(plot.title = element_text(face="bold",hjust = 0.5))
+  xlab("Average death rate (%)")+
+  theme(plot.title = element_text(hjust = 0.5, size=20),axis.text=element_text(size=8),legend.text=element_text(size=16),
+        legend.title=element_text(size=16),
+        axis.title =element_text(size=16),
+        strip.text = element_text(face="bold", size=12))
 ```
 
-### Comparison between adult and pediatric patient over time
-```{r}
-pie_data<-Covid_19 %>% 
-  select(date,state,inpatient_beds,inpatient_beds_used,inpatient_beds_used_covid) %>% 
-  filter(date=="2020-11-15") %>% 
-  filter(state=="NJ") %>% 
-  mutate(inpatient_beds_empty=inpatient_beds-inpatient_beds_used,inpatient_beds_used_others=inpatient_beds_used-inpatient_beds_used_covid) %>% 
-  select(date,state,inpatient_beds_empty,inpatient_beds_used_covid,inpatient_beds_used_others)
-```
+To see the relationship between death rate and inpatient beds availability, we draw this Cleveland dot plot of monthly average death rate in different States facet by months. Together with the inpatient bed availability plot, we found that those states who provide more inpatient beds like FL, CA, TX and NY, have relatively lower death rate.
 
+## Does Covid19 impact differently on adult and pediatric patients?
+
+### Comparison between adult and pediatric patients over time
 
 ```{r}
-pie_tidydata<-pie_data %>% 
-  pivot_longer(cols=!c(date,state),names_to="group",values_to="number") %>% 
-  mutate(group=as.factor(group)) %>% 
-  mutate(value=number/sum(number)*100) %>% 
-  mutate(ypos=cumsum(value)-0.5*value) %>% 
-  mutate(group=fct_relevel(group,'inpatient_beds_used_others','inpatient_beds_used_covid','inpatient_beds_empty'))
-```
-```{r}
-library(scales)
-pie_tidydata %>% ggplot(aes(x="",y=value,fill=group))+
-  geom_bar(stat="identity",width=1)+
-  coord_polar('y')+
-  theme_void()+
-  geom_text(aes(x=1.2,y=ypos,label=percent(value/100)),color="black",size=6)+
-  scale_fill_brewer()+
-  ggtitle("Inpatient beds utilization (NJ 11/15/2020)")+
-  theme(plot.title = element_text(face="bold",hjust = 0.5))
-```
 
-
-## Does Covid19 impact differently on adult and pediatric patient?
-
-### Comparison between adult and pediatric patient over time
-
-```{r}
-library(knitr)
 Covid_19$Month <- format(as.Date(Covid_19$date), "%m")
 data <- Covid_19 %>% select(Month, total_adult_patients_hospitalized_confirmed_covid, total_pediatric_patients_hospitalized_confirmed_covid)
 newdata <- na.omit(data)
@@ -313,11 +314,15 @@ kable(tidydata)
 ```
 
 ```{r}
-ggplot(tidydata, aes(fill=stat, y=number, x=Month)) + 
-    geom_bar(position="fill", stat="identity")+
-    ggtitle("Stacked bar chart of Adult & Pediatric confirmed cases")
+ggplot(tidydata, aes(y=number, x=Month,fill=stat)) +
+    geom_bar(position="fill",stat="identity")+
+    scale_fill_discrete(labels=c("Adult", "Pediatric"))+
+    ggtitle("Stacked bar chart of Adult & Pediatric confirmed cases")+
+  theme(plot.title = element_text(hjust = 0.5, size=16),
+        legend.title = element_blank())
 ```
-From this picture we can see clearly that from April to September, the percentage of children who and confirmed and hospitalized has different patterns between first three months and last four months.  It is because first three most states didn't distinguish adult and children. In the last four months, we can see that the percentage of children shows an increasing trend.
+
+From this picture we can see clearly that from April to September, the percentage of children who and confirmed and hospitalized has different patterns between first three months and last four months. It is because first three most states didn't distinguish adult and children. In the last four months, we can see that the percentage of children shows an increasing trend. But still, the number of children who infected Covid19 is much more lower than that of adults. This is consistent with some research result that children are less likely to infect Covid19 than adults.
 
 
 
