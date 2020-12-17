@@ -10,7 +10,7 @@
 
 ```{r}
 library(r2d3)
-library(dplyr)
+library(tidyverse)
 
 covid19_merged_df =  read.csv("./data/Covid19_selected.csv")
 covid19_merged_df$date = as.character(covid19_merged_df$date)
