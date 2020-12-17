@@ -24,7 +24,7 @@ This plot provides a specific visualization of the amount of missing data, showi
 
 ##  Patterns of Missing values
 ```{r}
-gg_miss_var(Covid19_selected_df, show_pct = TRUE)
+gg_miss_var(Covid19_selected_df, show_pct = TRUE) + ggtitle("Percentage of missing in each variable")
 ```
 
 From the plot above, we can see more clear about the percentage of missing values in each variables.
@@ -32,10 +32,11 @@ From the plot above, we can see more clear about the percentage of missing value
 ```{r}
 gg_miss_upset(Covid19_selected_df)
 ```
+Upset plot of the dataset
 
 An upset plot from the UpSetR package can be used to visualize the patterns of missingness, or rather the combinations of missingness across cases. To see combinations of missingness and intersections of missingness amongst variables, use the gg_miss_upset function:   
-6467 cases missing those five columns together;  
-152 cases missing adult_icu_bed_occupancy and adult_icu_bed_covid_utilization_NA.  
+* 6467 cases missing those five columns together;  
+* 152 cases missing adult_icu_bed_occupancy and adult_icu_bed_covid_utilization_NA.  
 What we need to note is that most missing values are from those five variables and they always show missing values together. This is what we need to consider in our following analysis.
 
 
