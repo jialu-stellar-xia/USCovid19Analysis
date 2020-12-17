@@ -23,20 +23,27 @@ vis_miss(Covid19_selected_df)
 This plot provides a specific visualization of the amount of missing data, showing in black the location of missing values, and also providing information on the overall percentage of missing values overall (in the legend), and in each variable. From this graph we can see that most missing values happen together, they are not random missing values. After diving deeper into the data source, we know that the missing pattern is because states don't always have consistent data collection methods over time.  
 
 ##  Patterns of Missing values
-```{r}
-gg_miss_var(Covid19_selected_df, show_pct = TRUE) + ggtitle("Percentage of missing in each variable")
+```{r fig.height=10,fig.width=12}
+gg_miss_var(Covid19_selected_df, show_pct = TRUE) + 
+  ggtitle("Percentage of missing in each variable")+
+  theme(plot.title = element_text(hjust = 0.5, size=20),
+        axis.text=element_text(size=12),
+        axis.title =element_text(size=16),
+        )
 ```
 
 From the plot above, we can see more clear about the percentage of missing values in each variables.
 
-```{r}
+```{r fig.height=10,fig.width=12}
 gg_miss_upset(Covid19_selected_df)
 ```
-Upset plot of the dataset
 
-An upset plot from the UpSetR package can be used to visualize the patterns of missingness, or rather the combinations of missingness across cases. To see combinations of missingness and intersections of missingness amongst variables, use the gg_miss_upset function:   
-* 6467 cases missing those five columns together;  
+An upset plot from the UpSetR package can be used to visualize the patterns of missingness, or rather the combinations of missingness across cases. To see combinations of missingness and intersections of missingness amongst variables, use the gg_miss_upset function:
+
+* 6467 cases missing those five columns together;
+
 * 152 cases missing adult_icu_bed_occupancy and adult_icu_bed_covid_utilization_NA.  
+
 What we need to note is that most missing values are from those five variables and they always show missing values together. This is what we need to consider in our following analysis.
 
 
