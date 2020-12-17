@@ -31,4 +31,4 @@ all_death_rate_df = rbind(death_rate_df, US_death_rate)
 r2d3(data=all_death_rate_df, script = "./js/death_rate.js")
 ```
 
-The interactive plot provides us with the funtionality to compare the trends of covid-19 total cases of two states or entire US. Since the number of states in US is large, it is hard to make comparisons between the trends of two states within fifty lines on the plot. Therefore, the interactive plot enables the user to choose two of the fifty states in US and plot the corresponding lines of total cases along with time, which could help the user understand the trends of differents states and US.
+The interactive plot provides us with the funtionality to compare the trends of covid-19 death rates of two states or entire US. Since the number of states in US is large, it is hard to make comparisons between the trends of two states among fifty lines on the plot. Therefore, the interactive plot enables the user to choose two of the fifty states in US or entire US and plot the corresponding lines of death rates along with time, which could help the user understand the trends of differents states and US.
