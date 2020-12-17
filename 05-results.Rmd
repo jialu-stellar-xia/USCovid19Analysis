@@ -61,7 +61,7 @@ plot_usmap(data = na.omit(covid19_tot_cases), values = "all_total", color = "#00
 
 ```
 
-The plots above show the trend of total cases in US from March to November. At the very beginning, we find that the pandemic only exists in NY state (with few cases in other states). As time goes on, the covid-19 cases spread rapidly through CA, TX and FL from June. From the nine plots above, it seems that the number of total cases in the east coast is higher than the one in the west and middle.
+The plots above show the trend of total cases in US from March to November. At the very beginning, we find that the pandemic only exists in NY state (with few cases in other states). As time goes on, the Covid-19 cases spread rapidly through CA, TX and FL from June. From the nine plots above, it seems that the number of total cases in the east coast is higher than the one in the west and middle.
 
 ### New cases in US
 ```{r fig.height=10,fig.width=12}
@@ -89,7 +89,7 @@ plot_usmap(data = na.omit(covid19_new_cases), values = "all_new_total", color = 
         strip.text = element_text(face="bold", size=12)) 
 ```
 
-The plots above show the trend of increased cases in US from March to November. In March, the break-out of covid-19 occurred in NY and surrounding areas. After that, the second phrase of break-out occurred in CA, TX, FL and NY in July. After that, the cases of IL and the nearby regions also increased rapidly.
+The plots above show the trend of increased cases in US from March to November. In March, the break-out of Covid-19 occurred in NY and surrounding areas. After that, the second phrase of break-out occurred in CA, TX, FL and NY in July. After that, the cases of IL and the nearby regions also increased rapidly.
 
 
 ### Monthly new cases (in thousands) by States
@@ -141,7 +141,7 @@ ggplot(data=Covid_19, aes(x=as.Date(date), y = increase_rate, group = state)) +
         strip.text = element_text(face="bold", size=12))
 ```
 
-From this graph we can see that the 50 states have a similar pattern in the ratio of New case to Total case over time: very high at the beginning, and then be stable at a low level. It can be a signal that many confirmed patients have been recovered, also shows  that covid-19 control measures have been effective.
+From this graph we can see that the 50 states have a similar pattern in the ratio of New case to Total case over time: very high at the beginning, and then be stable at a low level. It can be a signal that many confirmed patients have been recovered, also shows  that Covid-19 control measures have been effective.
 
 ## How does medical resources affect Covid19 death rate?
 
@@ -181,7 +181,7 @@ dh_tidydata %>% ggplot(aes(x=as.Date(date),y=Rate)) +
         axis.title =element_text(size=16) )
 ```
 
-This line chart displays average death rate and hospital admission rate of Covid19 patients in the US. Because the hospital admission data before 2020-07-26 is missing, time of this plot starts from 2020-07-26. From the plot, we can see that overall hospital admission rate increased from 2020-09-28, and death rate not only decreased but also decreased faster. There are a lot of factors affect death rate, this plot shows that hospital admission rate is one of the factors. And this inspired us to explore the relationship between hospital admission rate and the change rate of death rate. 
+This line chart displays average death rate and hospital admission rate of Covid-19 patients in the US. Because the hospital admission data before 2020-07-26 is missing, time of this plot starts from 2020-07-26. From the plot, we can see that overall hospital admission rate increased from 2020-09-28, and death rate not only decreased but also decreased faster. There are a lot of factors affect death rate, this plot shows that hospital admission rate is one of the factors. And this inspired us to explore the relationship between hospital admission rate and the change rate of death rate. 
 
 ### Decrease rate of death-rate and Hospital admission rate
 
@@ -207,7 +207,7 @@ ddh_tidydata %>% ggplot(aes(x=as.Date(date),y=Rate)) +
         axis.title =element_text(size=16) )
 ```
 
-This is a smoothed plot of decrease rate of death rate and hospital admission rate. The pattern is very clear that when hospital admission rate decreases, death rate decreases slower. And when hospital admission rate increases, death rate decreases faster. We can conclude that enlarging the hospital capacity and receiving more Covid19 patients could speed up the death rate decreasing.
+This is a smoothed plot of decrease rate of death rate and hospital admission rate. The pattern is very clear that when hospital admission rate decreases, death rate decreases slower. And when hospital admission rate increases, death rate decreases faster. We can conclude that enlarging the hospital capacity and receiving more Covid-19 patients could speed up the death rate decreasing.
 
 ### Death rate and Inpatient bed availability 
 
@@ -268,7 +268,7 @@ Cd_data %>%
         strip.text = element_text(face="bold", size=12))
 ```
 
-The Cleveland dot plot is about average number of monthly available inpatient beds in different States and facet by month. From this dot plot, we can clearly see that hospitals in most of the states increased inpatient beds from March to November. Compare to other states, FL, CA, TX and NY prepared more beds for Covid patient.
+The Cleveland dot plot is about average number of monthly available inpatient beds in different States and facet by month. From this dot plot, we can clearly see that hospitals in most of the states increased inpatient beds from March to November. Compared to other states, FL, CA, TX and NY prepared more beds for Covid-19 patients.
 
 ```{r}
 Cdd_data<-Covid_19 %>% 
@@ -322,7 +322,7 @@ ggplot(tidydata, aes(y=number, x=Month,fill=stat)) +
         legend.title = element_blank())
 ```
 
-From this picture we can see clearly that from April to September, the percentage of children who and confirmed and hospitalized has different patterns between first three months and last four months. It is because first three most states didn't distinguish adult and children. In the last four months, we can see that the percentage of children shows an increasing trend. But still, the number of children who infected Covid19 is much more lower than that of adults. This is consistent with some research result that children are less likely to infect Covid-19 than adults.
+From this picture we can see clearly that from April to September, the percentage of children who and confirmed and hospitalized has different patterns between first three months and last four months. It is because first three most states didn't distinguish adult and children. In the last four months, we can see that the percentage of children shows an increasing trend. But still, the number of children who infected Covid-19 is much more lower than that of adults. This is consistent with some research result that children are less likely to infect Covid-19 than adults.
 
 
 
